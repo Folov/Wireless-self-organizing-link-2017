@@ -17,6 +17,7 @@ DEVICE_5G1=radio0
 - hostapd-wlan10.conf *根据不同硬件适当修改*
 - link_build_down.sh
 - link_build_up.sh
+- reconnect.sh
 - tcpcli-arm1900
 - tcpsrv_down-arm1900
 - tcpsrv_up-arm1900
