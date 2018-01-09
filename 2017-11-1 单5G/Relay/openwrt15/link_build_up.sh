@@ -17,6 +17,6 @@ for i in $(seq $(expr $locate_number + 1) $lpm_number); do
 done
 # Send LPM to subnet.
 down_num=`tail -n 1 /tmp/wsol/LPM_GET.txt | head -n 1 | sed 's/openwrt//'`
-./tcpcli-arm1900 192.168.$down_num.$down_num /tmp/wsol/LPM_TOP.txt
+/root/tcpcli-arm1900 192.168.$down_num.$down_num /tmp/wsol/LPM_TOP.txt
 
 exit 0

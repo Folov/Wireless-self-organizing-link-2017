@@ -5,9 +5,8 @@ Function: This C file is used for choose the best router from
 routerlist.txt(from findrouter.sh).It can fix whether the chosen router
 is the same as oldrouter that has been writen in 'bestrouter.txt'. Also,
 if the 'routerlist.txt' not exit or empty, this file will not return 0.
-
-returned value: 0			1					2					3
-meanning: 	 normal	 needn't update	 file not exist or empty  can't open file
+returned value: 		0						2					3				4
+meanning: 	 normal	or needn't update	 file not exist or empty  can't open file 	no fit ap
 ***********************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,7 +35,7 @@ int main(int argc, char *argv[])
 {
 	FILE *fd;
 	struct router routers[MAXROUTER] = {0};
-	struct router oldrouter = {0};
+	// struct router oldrouter = {0};
 	int router_numbers = 0;
 
 	if (argc!=2)
@@ -55,21 +54,19 @@ int main(int argc, char *argv[])
 		printf("%s%s%s\n%s%s\n%s\n","ssid=\"", bestrouter.SSID,"\"","bssid=", bestrouter.BSS, "}");
 		exit(0);
 	}
-	fscanf(fd, "%s %s", oldrouter.SSID, oldrouter.BSS);	//copy file's first line
-	fclose(fd);
-	if ((strcmp(oldrouter.SSID,bestrouter.SSID) != 0) || (strcmp(oldrouter.BSS,bestrouter.BSS) != 0))
+	else
 	{
 		printf("%s\n%s\n%s\n%s\n", "country=CN", "network={", "scan_ssid=1", "key_mgmt=NONE");
 		printf("%s%s%s\n%s%s\n%s\n","ssid=\"", bestrouter.SSID,"\"","bssid=", bestrouter.BSS, "}");
 		return 0;	//need update
 	}
-	return 1;	//no need update
+	fclose(fd);
+	return 0;
 }
 
 /*************************************************************************************
 Read "max" files from the "filename" file and save it to the array "router routers[]".
 This function returns the number of records of actually read.
-
 *************************************************************************************/
 int read_Routers(char filename[],struct router routers[], int max)
 {
@@ -103,7 +100,8 @@ routers[x].signal is a number for -xxdbm. The smaller，the better.
 int choose_Router(struct router routers[], int records_number)
 {
 	float min = 99;
-	int flag = 0, status;
+	//To check whether routers[flag] inappropriate (When LPM_GET.txt's AP is first.).
+	int flag = 99, status;
 	int cflags = REG_EXTENDED;
 	regmatch_t pmatch[1];
 	const size_t nmatch = 1;
@@ -125,7 +123,6 @@ int choose_Router(struct router routers[], int records_number)
 		}
 		fclose(fp);
 	}
-
 	for (int i = 0; i < records_number; ++i)
 	{
 		regcomp(&reg, pattern, cflags);
@@ -157,7 +154,8 @@ int choose_Router(struct router routers[], int records_number)
 	if (regexec(&reg, routers[flag].SSID, nmatch, pmatch, 0)) //if regexec true, if(0), go to else
 	{
 		regfree(&reg);
-		return 0;
+		printf("no matched AP for choose\n");
+		exit(4);
 	}
 	else
 	{
@@ -168,4 +166,3 @@ int choose_Router(struct router routers[], int records_number)
 		return 1;
 	}
 }
-

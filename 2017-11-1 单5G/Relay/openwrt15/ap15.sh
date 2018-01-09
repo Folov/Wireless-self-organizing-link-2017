@@ -108,5 +108,5 @@ iw phy phy0 interface add wlan20 type managed addr $MAC_ADDR_WLAN20
 echo "wlan20 on phy0 has been created!"
 # hostapd start(a pid file will be created)
 sleep 1
-hostapd -B -P /tmp/wsol/hostapd-wlan10.pid hostapd-wlan10.conf
+hostapd -B -P /tmp/wsol/hostapd-wlan10.pid /root/hostapd-wlan10.conf
 echo "AP has been created!"
