@@ -21,4 +21,4 @@ DEVICE_5G=radio0
 1. /tmp/wsol/hostapd-wlan10.pid 	(hostapd进程号)
 2. /tmp/wsol/LPM_GET.txt 			(由下级传入的LPM信息)
 3. /tmp/wsol/LPM_TO_SEND.txt 		(传给下级的LPM信息)
-4. ./bakup/routebak.sh 				(路由表备份)
+4. /root/bakup/routebak.sh 				(路由表备份)

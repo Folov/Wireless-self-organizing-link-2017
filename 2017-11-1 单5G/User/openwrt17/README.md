@@ -28,5 +28,5 @@ DEVICE_5G1=radio0
 4. /tmp/wsol/LPM_TO_SEND.txt 		(将要传给上级的LPM信息)
 5. /tmp/wsol/LPM_TOP.txt 			(S端传来的LPM汇总)
 6. /tmp/wsol/routerlist.txt 		(iwscan.txt的筛选)
-7. ./bakup/bestrouter.bak 			(最佳路由备份)
-8. ./bakup/routebak.sh 				(路由表备份)
+7. /root/bakup/bestrouter.bak 			(最佳路由备份)
+8. /root/bakup/routebak.sh 				(路由表备份)
