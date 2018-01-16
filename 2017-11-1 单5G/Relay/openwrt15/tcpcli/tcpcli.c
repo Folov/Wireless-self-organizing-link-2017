@@ -7,11 +7,7 @@
 #include 	<string.h>
 #include	<netinet/in.h>	/* sockaddr_in{} and other Internet defns */
 
-/* Following could be derived from SOMAXCONN in <sys/socket.h>, but many
-   kernels still #define it as 5, while actually supporting many more */
 #define	LISTENQ		1024	/* 2nd argument to listen() */
-
-/* Miscellaneous constants */
 #define	MAXLINE		4096	/* max text line length */
 #define	BUFFSIZE	8192	/* buffer size for reads and writes */
 #define	SA	struct sockaddr
@@ -50,41 +46,31 @@ main(int argc, char **argv)
 
 	if (argc != 3)
 		err_quit("usage: tcpcli <IPaddress> <LPM file>");
-//AF_INET: IPv4 protocal	SOCK_STREAM: 字节流套接字, TCP专用
+	//AF_INET: IPv4 protocal	SOCK_STREAM: 字节流套接字, TCP专用
 	if ( (sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 		err_sys("socket error");
+	//允许Socket重用，防止出现 bind error: Address in use
 	int Reuse = 1;
 	setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &Reuse, sizeof(Reuse));
-	//允许Socket重用，防止出现 bind error: Address in use
 	bzero(&servaddr, sizeof(servaddr));
-	servaddr.sin_family = AF_INET;		
-	servaddr.sin_port   = htons(9898);	/*port13: daytime server */
+	servaddr.sin_family = AF_INET;
+	servaddr.sin_port   = htons(9898);
 	if (inet_pton(AF_INET, argv[1], &servaddr.sin_addr) <= 0)	/*点分十进制IP地址转二进制数值*/
 		err_quit("inet_pton error for %s", argv[1]);
 
 	if (connect(sockfd, (SA *) &servaddr, sizeof(servaddr)) < 0)
 		err_sys("connect error");
 
-	// if ( (n = Read(sockfd, recvline, MAXLINE)) > 0) //read 返回0：对端关闭连接；	返回负值：发生错误	成功：返回读取的字节数
-	// {	
-	// 	recvline[n] = 0;	// null terminate：数组结尾置0 
-	// 	if (fputs(recvline, stdout) == EOF)
-	// 		err_sys("fputs error");
-	// }
-	// if (n < 0)
-	// 	err_sys("read error");
-
 	struct lpm lpm_to_send[MAXROUTER] = {0};
 	int lpm_number = 0;
 	lpm_number = read_LPM(argv[2], lpm_to_send, MAXROUTER);
-	// printf("Read from LPM_file:\n%s\n%s\n%s\n%s\n", lpm_to_send->ssid, lpm_to_send->mac_wan, lpm_to_send->to_ssid, lpm_to_send->separator);
-	// printf("%s\n", lpm_to_send[2].ssid);
 	printf("%d ssid transmitted.\n", lpm_number);
+	
 	if ( lpm_number != 0 )
 	{
 		Write(sockfd, (char *)&lpm_to_send, sizeof(lpm_to_send));
-
-		if (Read(sockfd, recvline, MAXLINE) > 0)	
+		//Read "Serv get it!" from tcpsrv.
+		if (Read(sockfd, recvline, MAXLINE) > 0)
 			if (fputs(recvline, stdout) == EOF)
 				err_sys("fputs error");
 		Close(sockfd);
@@ -94,8 +80,6 @@ main(int argc, char **argv)
 		Close(sockfd);
 		err_quit("Lpm file error!");
 	}
-
-	
 	exit(0);
 }
 
@@ -112,7 +96,7 @@ int read_LPM(char filename[], struct lpm lpm_data[], int max)
 	while(fscanf(fd, "%s", lpm_data->ssid) != EOF)
 	{
 		strcat(lpm_data->ssid, "\n");
-		// 注意：strcat会在结尾自动添加'\0' !!!		
+		// 注意：strcat会在结尾自动添加'\0' !!!
 		if (++i == max)
 			break;
 		lpm_data++;

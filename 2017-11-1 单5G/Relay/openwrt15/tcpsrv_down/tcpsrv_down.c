@@ -7,19 +7,14 @@
 #include	<netinet/in.h>	/* sockaddr_in{} and other Internet defns */
 #include	<signal.h>
 
-
-/* Following could be derived from SOMAXCONN in <sys/socket.h>, but many
-   kernels still #define it as 5, while actually supporting many more */
 #define	LISTENQ		1024	/* 2nd argument to listen() */
 
-/* Miscellaneous constants */
 #define	MAXLINE		4096	/* max text line length */
 #define	BUFFSIZE	8192	/* buffer size for reads and writes */
 #define MAXID 30
 #define MAXMAC 20
 #define MAXROUTER 20
 #define	SA	struct sockaddr
-
 
 extern int Accept(int fd, struct sockaddr *sa, socklen_t *salenptr);
 extern void Bind(int fd, const struct sockaddr *sa, socklen_t salen);
@@ -48,44 +43,24 @@ main(int argc, char **argv)
 {
 	FILE				*fp = NULL;
 	int					listenfd, connfd;
-	// int 				k = 0, j = 0;
 	struct sockaddr_in	servaddr;
-	// struct lpm 			lpm_to_get[MAXROUTER];
-	// struct lpm 			lpm_recv[MAXROUTER];
-	// char				buff[MAXLINE];
 	char				recvline[MAXLINE + 1];
 	char				recv_save[MAXLINE+1];
-	// char				routers_ssid[MAXROUTER][MAXID] = {0};
-	// char				(*pt_to_routers)[MAXID];
-	// pt_to_routers = routers_ssid;
-	// time_t				ticks;
 	pid_t				childpid;
-
-	// lpm_recv = (struct lpm *)malloc(MAXROUTER*sizeof(struct lpm));
-	// memset(lpm_recv, 0, MAXROUTER*sizeof(struct lpm));
-	// if (NULL==lpm_recv)
-	// {
-	// 	printf("Can not malloc! \n");
-	// 	return 1;
-	// }
-
 	listenfd = Socket(AF_INET, SOCK_STREAM, 0);
 
 	bzero(&servaddr, sizeof(servaddr));
 	servaddr.sin_family      = AF_INET;
 	servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	servaddr.sin_port        = htons(9898);	//daytime server
+	servaddr.sin_port        = htons(9898);
 
 	Bind(listenfd, (SA *) &servaddr, sizeof(servaddr));
 
 	Listen(listenfd, LISTENQ);
 	//listen函数将listenfd套接字转换为被动套接字，LISTENQ为队列最大值(1024即可)
-    // ticks = time(NULL);
-    // snprintf(buff, sizeof(buff), "%.24s\r\n", ctime(&ticks));
-    // Write(connfd, buff, strlen(buff));
+	//允许Socket重用，防止出现 bind error: Address in use
 	int Reuse = 1;
 	setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &Reuse, sizeof(Reuse));
-	//允许Socket重用，防止出现 bind error: Address in use
     signal(SIGCHLD,SIG_IGN);
     //避免出现子进程结束后的僵死进程的简单方法（忽略），缺点是不能对SIGCHILD信号进行处理。
 	for ( ; ; ) {

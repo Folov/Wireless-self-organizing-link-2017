@@ -1,12 +1,10 @@
 /**********************************************************************
-Time: 2017/12/20
+Time: 2018/1/15
 Auther: GYH
-Function: This C file is used for choose the best router from 
-routerlist.txt(from findrouter.sh).It can fix whether the chosen router
-is the same as oldrouter that has been writen in 'bestrouter.txt'. Also,
-if the 'routerlist.txt' not exit or empty, this file will not return 0.
-returned value: 		0						2					3				4
-meanning: 	 normal	or needn't update	 file not exist or empty  can't open file 	no fit ap
+Function: This C file is used for choose the best router in the form of wpa_supplicant 
+from routerlist.txt(from findrouter.sh).
+returned value: 	0					2					3				4
+meanning: 	 	 normal		 file not exist or empty   can't open file 	no fit ap
 ***********************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,7 +33,6 @@ int main(int argc, char *argv[])
 {
 	FILE *fd;
 	struct router routers[MAXROUTER] = {0};
-	// struct router oldrouter = {0};
 	int router_numbers = 0;
 
 	if (argc!=2)
@@ -43,9 +40,9 @@ int main(int argc, char *argv[])
 		printf("Usage: %s routerlist_file\n",argv[0]);
 		exit(0);
 	}
+
 	router_numbers = read_Routers(argv[1], routers, MAXROUTER);
 	choose_Router(routers, router_numbers);
-
 
 	if ((fd = fopen("/tmp/wsol/bestrouter.txt", "r")) == NULL)
 	{
@@ -58,7 +55,7 @@ int main(int argc, char *argv[])
 	{
 		printf("%s\n%s\n%s\n%s\n", "country=CN", "network={", "scan_ssid=1", "key_mgmt=NONE");
 		printf("%s%s%s\n%s%s\n%s\n","ssid=\"", bestrouter.SSID,"\"","bssid=", bestrouter.BSS, "}");
-		return 0;	//need update
+		return 0;
 	}
 	fclose(fd);
 	return 0;
@@ -100,7 +97,7 @@ routers[x].signal is a number for -xxdbm. The smaller，the better.
 int choose_Router(struct router routers[], int records_number)
 {
 	float min = 99;
-	//To check whether routers[flag] inappropriate (When LPM_GET.txt's AP is first.).
+	//To check whether routers[flag] inappropriate (When LPM_GET.txt's AP is first.).So, flag!=0
 	int flag = 99, status;
 	int cflags = REG_EXTENDED;
 	regmatch_t pmatch[1];
@@ -110,10 +107,10 @@ int choose_Router(struct router routers[], int records_number)
 	struct lpm_get lpm_gets[MAXROUTER] = {0};
 	FILE *fp;
 	int lpm_num = 0, lpm_flag;
-
+	//Get LPMs to the struct array "lpm_gets"
 	if ((fp = fopen("/tmp/wsol/LPM_GET.txt", "r")) == NULL)
 	{
-		memset(lpm_gets,0,sizeof(struct lpm_get)*MAXROUTER);
+		memset(lpm_gets,0,sizeof(struct lpm_get)*MAXROUTER);	//empty struct array
 	}
 	else
 	{
@@ -126,14 +123,9 @@ int choose_Router(struct router routers[], int records_number)
 	for (int i = 0; i < records_number; ++i)
 	{
 		regcomp(&reg, pattern, cflags);
-		status = regexec(&reg, routers[i].SSID, nmatch, pmatch, 0);	//Use Regular Expression
-		if (status == 0)											//to match.
+		status = regexec(&reg, routers[i].SSID, nmatch, pmatch, 0);	//Use Regular Expression to match.
+		if (status == 0)											
 		{
-			// if (strcmp(routers[i].SSID, "openwrt11") == 0 && (routers[i].signal < 40))	//Source: openwrt1
-			// {																			//First client priority: openwrt1
-			// 	flag = i;
-			// 	break;
-			// }
 			lpm_flag = 0;
 			for (int j = 0; j < lpm_num; ++j)
 			{
@@ -143,14 +135,15 @@ int choose_Router(struct router routers[], int records_number)
 					break;
 				}
 			}
-			if (min > routers[i].signal && lpm_flag == 0)	//When signal strength is more than the current
+			//When signal strength is more than the current
+			if (min > routers[i].signal && lpm_flag == 0)
 			{
 				min = routers[i].signal;
 				flag = i;	//The serial number of the best router in struct routers[].
 			}
 		}
 	}
-	//To check whether routers[flag] inappropriate (When no openwrt APs, flag=0 and rouers[0] is wrong AP).
+	//To check whether routers[flag] inappropriate(When no openwrt APs, flag=0 and rouers[0] is wrong AP).
 	if (regexec(&reg, routers[flag].SSID, nmatch, pmatch, 0)) //if regexec true, if(0), go to else
 	{
 		regfree(&reg);

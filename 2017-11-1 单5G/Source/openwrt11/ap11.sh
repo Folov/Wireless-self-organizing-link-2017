@@ -1,7 +1,6 @@
 #!/bin/ash
 echo "ap11 up and initialize"
-# Use this apxx.sh, we can build an AP_5G, change lan ip to 192.168.xx.xx, close
-# dhcp, and build the wwan iface for clientAP.
+# Use this apxx.sh, we can build an AP_5G, change lan ip to 192.168.xx.xx and close dhcp.
 DEVICE=Linksys_AC3200
 DEVICE_5G1=radio0
 DEVICE_5G2=radio2
@@ -20,9 +19,7 @@ fi
 if [ $MAC_ADDR_WLAN20 = $MAC_ADDR ]; then
 	MAC_ADDR_WLAN10=21:$MAC_ADDR_LAST
 fi
-# # Change hostapd-wlan10.conf
-# sed '$s/.*/bssid='$MAC_ADDR_WLAN10'/' -i hostapd-wlan10.conf
-# All temporary files will be put in /tmp/wsol
+
 mkdir -p /tmp/wsol
 
 echo "Set radio0/1..."
@@ -38,12 +35,12 @@ uci set wireless.$DEVICE_5G1.disabled=0
 uci set wireless.radio1.disabled=1
 
 echo "Delete all wifi-iface"
-## must be [1][0]
+## must be [1],[0]
 uci delete wireless.@wifi-iface[1]
 uci delete wireless.@wifi-iface[0]
 uci commit wireless
 
-## delete network interface 'wan6'
+## delete network interface 'wan6' and add new interface
 echo "Add new interface"
 if [ $DEVICE = Linksys_AC3200 ]; then
 	uci set network.wan.ifname=eth1.2
@@ -68,6 +65,7 @@ uci set network.lan.netmask=255.255.255.0
 # uci set network.wwan.netmask=255.255.255.0
 uci commit network
 
+# firewall config
 echo "Change firewall settings"
 uci set firewall.@defaults[0].forward=ACCEPT
 uci set firewall.@zone[0].forward=ACCEPT
@@ -77,7 +75,7 @@ uci set firewall.@zone[1].network="wan"
 uci set firewall.@zone[1].input=ACCEPT
 uci commit firewall
 
-# dhcp
+# dhcp close
 echo "Shut down dhcp"
 uci delete dhcp.lan.leasetime
 uci delete dhcp.lan.limit
@@ -86,15 +84,7 @@ uci set dhcp.lan.ignore=1
 uci set dhcp.lan.ra_management=1
 uci commit dhcp
 
-# echo "Set up ap"
-# uci add wireless wifi-iface
-# uci set wireless.@wifi-iface[0].device=$DEVICE_5G1
-# uci set wireless.@wifi-iface[0].mode=ap
-# uci set wireless.@wifi-iface[0].ssid=$SSID
-# uci set wireless.@wifi-iface[0].encryption=none
-# uci set wireless.@wifi-iface[0].network=lan
-# uci commit wireless
-
+# Restart service
 echo "Restart"
 /etc/init.d/dnsmasq restart
 /etc/init.d/network restart
