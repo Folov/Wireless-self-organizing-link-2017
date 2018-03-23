@@ -13,11 +13,15 @@ MAC_ADDR=`cat /sys/class/net/br-lan/address`
 MAC_ADDR_LAST=`echo ${MAC_ADDR#*:}`
 MAC_ADDR_WLAN10=10:$MAC_ADDR_LAST
 MAC_ADDR_WLAN20=20:$MAC_ADDR_LAST
+MAC_ADDR_WLAN30=30:$MAC_ADDR_LAST
 if [ $MAC_ADDR_WLAN10 = $MAC_ADDR ]; then
 	MAC_ADDR_WLAN10=11:$MAC_ADDR_LAST
 fi
 if [ $MAC_ADDR_WLAN20 = $MAC_ADDR ]; then
 	MAC_ADDR_WLAN10=21:$MAC_ADDR_LAST
+fi
+if [ $MAC_ADDR_WLAN30 = $MAC_ADDR ]; then
+	MAC_ADDR_WLAN10=31:$MAC_ADDR_LAST
 fi
 
 mkdir -p /tmp/wsol
@@ -28,11 +32,11 @@ uci set wireless.$DEVICE_5G1.type=mac80211
 uci set wireless.$DEVICE_5G1.hwmode=11a
 uci set wireless.$DEVICE_5G1.htmode=VHT80
 uci set wireless.$DEVICE_5G1.channel=149
-uci set wireless.$DEVICE_5G1.txpower=10
+uci set wireless.$DEVICE_5G1.txpower=20
 uci set wireless.$DEVICE_5G1.country=CN
 uci set wireless.$DEVICE_5G1.disabled=0
-## shut down 2.4G AP
-uci set wireless.radio1.disabled=1
+## open 2.4G AP
+uci set wireless.radio1.disabled=0
 
 echo "Delete all wifi-iface"
 ## must be [1],[0]
@@ -96,7 +100,12 @@ iw phy phy0 interface add wlan10 type managed addr $MAC_ADDR_WLAN10
 echo "wlan10 on phy0 has been created!"
 iw phy phy0 interface add wlan20 type managed addr $MAC_ADDR_WLAN20
 echo "wlan20 on phy0 has been created!"
+iw phy phy1 interface add wlan30 type managed addr $MAC_ADDR_WLAN30
+echo "wlan30 on phy1 has been created!"
 # hostapd start(a pid file will be created)
 sleep 1
 hostapd -B -P /tmp/wsol/hostapd-wlan10.pid /root/hostapd-wlan10.conf
-echo "AP has been created!"
+echo "5GAP has been created!"
+sleep 1
+hostapd -B -P /tmp/wsol/hostapd-wlan30.pid /root/hostapd-wlan30.conf
+echo "2.4GAP has been created!"
