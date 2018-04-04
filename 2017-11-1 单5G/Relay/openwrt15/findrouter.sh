@@ -5,6 +5,8 @@ while [ 1 ]; do
 	if iw dev wlan20 scan >| /tmp/wsol/iwscan.txt
 	then
 		egrep -w '^	SSID|^	signal|^BSS' /tmp/wsol/iwscan.txt | sed 's/(on wlan20)//; s/	//; s/BSS //; s/signal: //; s/SSID: //; s/ dBm//; s/ -- associated//; s/^-//' >| /tmp/wsol/routerlist.txt
+		# Replace blank line to 'blank_ssid', lest wrong read by chooserouter.
+		sed -i 's/^$/blank_ssid/' /tmp/wsol/routerlist.txt
 		echo "findrouter ok!"
 		exit 0
 	fi
