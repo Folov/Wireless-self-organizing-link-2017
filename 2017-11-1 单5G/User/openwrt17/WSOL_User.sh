@@ -1,5 +1,6 @@
 #!/bin/ash
 
+mkdir -p /root/bakup
 /root/ap17.sh
 
 echo 'openwrt17' >| /tmp/wsol/LPM_TO_SEND.txt

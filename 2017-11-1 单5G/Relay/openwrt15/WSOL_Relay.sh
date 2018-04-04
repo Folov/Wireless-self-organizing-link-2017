@@ -1,6 +1,8 @@
 #!/bin/ash
 
-sleep 8
+sleep 6
+mkdir -p /root/bakup
+sleep 2
 /root/ap15.sh
 
 # 建立向下的路由（阻塞于tcpsrv_down-arm1900）
