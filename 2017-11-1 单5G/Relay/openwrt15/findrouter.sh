@@ -1,3 +1,4 @@
+#!/bin/ash
 # This file is used to find all APs arround router, if iw dev xxx scan go wrong,
 # it will return 1 and into the loop, rescan AP until it works well.
 echo "find router"

@@ -32,7 +32,7 @@ uci set wireless.$DEVICE_5G1.type=mac80211
 uci set wireless.$DEVICE_5G1.hwmode=11a
 uci set wireless.$DEVICE_5G1.htmode=VHT80
 uci set wireless.$DEVICE_5G1.channel=149
-uci set wireless.$DEVICE_5G1.txpower=20
+uci set wireless.$DEVICE_5G1.txpower=8
 uci set wireless.$DEVICE_5G1.country=CN
 uci set wireless.$DEVICE_5G1.disabled=0
 ## open 2.4G AP
