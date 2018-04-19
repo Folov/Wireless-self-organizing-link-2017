@@ -1,8 +1,5 @@
 #!/bin/ash
 
-SSID=openwrt17
-SSID_num=17
-
 echo "Establish static route."
 locate_number=`grep -n "$SSID" /tmp/wsol/LPM_TOP.txt | sed 's/:.*//'`
 lpm_number=`wc -l /tmp/wsol/LPM_TOP.txt | sed 's/ .*$//'`

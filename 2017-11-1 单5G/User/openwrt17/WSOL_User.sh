@@ -1,5 +1,20 @@
 #!/bin/ash
 
+grep Self_id /etc/profile
+if [[ $? -ne 0 ]]; then
+	echo "Add env variables."
+	echo "export Self_id=17" >> /etc/profile
+	echo "export SSID=openwrt17" >> /etc/profile
+	echo "export SSID_num=17" >> /etc/profile
+	echo "export DEVICE=Linksys_AC1900" >> /etc/profile
+	echo "export DEVICE_5G1=radio0" >> /etc/profile
+	echo "export DEVICE_5G2=radio2" >> /etc/profile
+	echo "export WAN_IP=192.168.12.17" >> /etc/profile
+	echo "export LAN_IP=192.168.17.17" >> /etc/profile
+
+	source /etc/profile
+fi
+
 mkdir -p /root/bakup
 /root/ap17.sh
 

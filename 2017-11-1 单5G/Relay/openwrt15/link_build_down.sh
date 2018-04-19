@@ -1,8 +1,5 @@
 #!/bin/ash
 
-SSID=openwrt15
-SSID_num=15
-
 route del default
 echo "Create file LPM_TO_SEND.txt"
 cat /tmp/wsol/LPM_GET.txt > /tmp/wsol/LPM_TO_SEND.txt

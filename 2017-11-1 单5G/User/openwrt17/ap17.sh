@@ -1,12 +1,6 @@
 #!/bin/ash
 echo "ap17 up and initialize"
 # Use this apxx.sh, we can build an AP_5G, change lan ip to 192.168.xx.xx, close dhcp.
-DEVICE=Linksys_AC1900
-DEVICE_5G1=radio0
-DEVICE_5G2=radio2
-WAN_IP=192.168.12.17
-LAN_IP=192.168.17.17
-SSID=openwrt17
 
 # For wlan10 and wlan20 bssid
 MAC_ADDR=`cat /sys/class/net/br-lan/address`

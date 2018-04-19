@@ -1,12 +1,6 @@
 #!/bin/ash
 echo "ap11 up and initialize"
 # Use this apxx.sh, we can build an AP_5G, change lan ip to 192.168.xx.xx and close dhcp.
-DEVICE=Linksys_AC3200
-DEVICE_5G1=radio0
-DEVICE_5G2=radio2
-WAN_IP=192.168.12.11
-LAN_IP=192.168.11.11
-SSID=openwrt11
 
 # For wlan10 and wlan20 bssid
 MAC_ADDR=`cat /sys/class/net/br-lan/address`

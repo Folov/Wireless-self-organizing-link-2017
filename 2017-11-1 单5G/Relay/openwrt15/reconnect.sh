@@ -1,6 +1,5 @@
 #!/bin/ash
 
-Self_id=15
 /root/ap$Self_id.sh
 
 wpa_supplicant -B -iwlan20 -c /root/bakup/bestrouter.bak

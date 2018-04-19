@@ -4,7 +4,6 @@ echo "clientAP_15"
 # By use of wpa_supplicant.
 # And then, ifconfig ip and netmask, config route table.
 
-Self_id=15
 ps | grep wpa_supplicant | grep -v grep
 if [ $? -ne 0 ]
 then

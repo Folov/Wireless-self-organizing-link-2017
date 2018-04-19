@@ -1,6 +1,21 @@
 #!/bin/ash
 
 sleep 8
+grep Self_id /etc/profile
+if [[ $? -ne 0 ]]; then
+	echo "Add env variables."
+	echo "export Self_id=11" >> /etc/profile
+	echo "export SSID=openwrt11" >> /etc/profile
+	echo "export SSID_num=11" >> /etc/profile
+	echo "export DEVICE=Linksys_AC3200" >> /etc/profile
+	echo "export DEVICE_5G1=radio0" >> /etc/profile
+	echo "export DEVICE_5G2=radio2" >> /etc/profile
+	echo "export WAN_IP=192.168.12.11" >> /etc/profile
+	echo "export LAN_IP=192.168.11.11" >> /etc/profile
+
+	source /etc/profile
+fi
+
 mkdir -p /root/bakup
 /root/ap11.sh
 

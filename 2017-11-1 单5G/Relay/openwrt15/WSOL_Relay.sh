@@ -1,6 +1,21 @@
 #!/bin/ash
 
 sleep 6
+grep Self_id /etc/profile
+if [[ $? -ne 0 ]]; then
+	echo "Add env variables."
+	echo "export Self_id=15" >> /etc/profile
+	echo "export SSID=openwrt15" >> /etc/profile
+	echo "export SSID_num=15" >> /etc/profile
+	echo "export DEVICE=Linksys_AC1900" >> /etc/profile
+	echo "export DEVICE_5G1=radio0" >> /etc/profile
+	echo "export DEVICE_5G2=radio2" >> /etc/profile
+	echo "export WAN_IP=192.168.12.15" >> /etc/profile
+	echo "export LAN_IP=192.168.15.15" >> /etc/profile
+
+	source /etc/profile
+fi
+
 mkdir -p /root/bakup
 sleep 2
 /root/ap15.sh
