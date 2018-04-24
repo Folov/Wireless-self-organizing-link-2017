@@ -6,7 +6,7 @@ int main(int argc, char **argv)
 	struct sockaddr_in	servaddr;
 
 	if (argc != 3)
-		err_quit("usage: tcpcli <IPaddress> <ctrl message>[reboot/scan]");
+		err_quit("usage: tcpcli <IPaddress> <reboot|scan>");
 	//AF_INET: IPv4 protocal	SOCK_STREAM: 字节流套接字, TCP专用
 	sockfd = Socket(AF_INET, SOCK_STREAM, 0);
 
