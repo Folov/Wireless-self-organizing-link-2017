@@ -3,7 +3,7 @@
 # 连续发送或接收失败(都将导致udpcli返回错误)5次后重启
 
 # min:3*5=15s	max:6*5=30s
-SOURCE_IP=192.168.11.11
+SOURCE_IP=192.168.11.40
 err_flag=0
 
 while [ 1 ]; do

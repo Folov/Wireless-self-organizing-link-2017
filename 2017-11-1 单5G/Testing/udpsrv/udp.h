@@ -18,7 +18,7 @@
 #define	BUFFSIZE	8192	/* buffer size for reads and writes */
 #define MAXID 30
 #define MAXMAC 20
-#define MAXROUTER 20
+#define MAXROUTER 255
 #define	SA	struct sockaddr
 
 int		Accept(int fd, struct sockaddr *sa, socklen_t *salenptr);
