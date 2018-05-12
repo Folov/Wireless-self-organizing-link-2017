@@ -130,12 +130,19 @@ void *PC_server()
 	FILE				*fp = NULL;
 	int					listenfd, connfd;
 	struct sockaddr_in	servaddr;
-	char				recvline[MAXLINE + 1];
-	char *				buffer;
+	char				recvline_PC[MAXLINE + 1];
+	char 				IP_str[20];
+	char 				*p_static_info;
+	char 				*buffer_static_info;
+	char 				*buffer_all;
 	int 				file_block_length = 0;
 	int 				n = 0;
+	int 				flag_static = 0;
 
-	buffer = (char *)malloc(sizeof(char)*BUFFER_SIZE);	//for fread
+	buffer_static_info = (char *)malloc(sizeof(char)*BUFFER_SIZE);
+	buffer_all = (char *)malloc(sizeof(char)*(BUFFER_SIZE + MAXROUTER));
+	memset(buffer_static_info, 0, sizeof(buffer_static_info));
+	memset(buffer_all, 0, sizeof(buffer_all));
 
 	listenfd = Socket(AF_INET, SOCK_STREAM, 0);
 
@@ -159,15 +166,29 @@ void *PC_server()
 	    connfd = Accept(listenfd, (SA *) NULL, NULL);	
 	    //第2,3个参数用于接收accept函数返回的对端客户协议地址。可以置空。我们不感兴趣。
 	    //accept函数返回已连接套接字(TCP三路握手成功后的)，它代表client端套接字
-	    while ((n = Read(connfd, recvline, MAXLINE)) > 0)
+	    while ((n = Read(connfd, recvline_PC, MAXLINE)) > 0)
 	    {
-	    	recvline[n] = 0;	/* null terminate：数组结尾置0 */
-	    	if (strcmp(recvline, "Please~") == 0)
+	    	recvline_PC[n] = 0;	/* null terminate：数组结尾置0 */
+	    	if (strcmp(recvline_PC, "Please~") == 0)
 	    	{
 	    		printf("PC request message get!\n");
 	    		signal(SIGCHLD,SIG_DFL);
+	    		/* 取各节点信息保存 */
+	    		if (flag_static == 0)
+	    		{
+	    			for (int i = 0; i < MAXROUTER; ++i)
+		    		{
+		    			if (openwrt[i] == 1)
+		    			{
+		    				sprintf(IP_str, "192.168.%d.%d", i, i);
+		    				p_static_info = RU_cli(IP_str);
+		    				strcat(buffer_static_info, p_static_info);
+		    			}
+		    		}
+		    		flag_static = 1;
+	    		}
 	    		/* 汇总信息 */
-
+	    		
 
 	    		/* 发回PC */
 
@@ -183,4 +204,39 @@ void *PC_server()
 	}
 }
 
+char * RU_cli(char * addr)
+{
+	int					sockfd_RU;
+	struct sockaddr_in	servaddr_RU;
+	static char			recvline_RU_scan[BUFFER_SIZE];
+	char 				*precv = recvline_RU_scan;
+	int 				n_RU = 0;
+	int 				sum_nbyte = 0;
 
+	sockfd_RU = Socket(AF_INET, SOCK_STREAM, 0);
+
+	//允许Socket重用，防止出现 bind error: Address in use
+	int Reuse_RU = 1;
+	setsockopt(sockfd_RU, SOL_SOCKET, SO_REUSEADDR, &Reuse_RU, sizeof(Reuse_RU));
+
+	bzero(&servaddr_RU, sizeof(servaddr_RU));
+	servaddr_RU.sin_family = AF_INET;
+	servaddr_RU.sin_port   = htons(9900);
+	Inet_pton(AF_INET, addr, &servaddr_RU.sin_addr);	/*点分十进制IP地址转二进制数值*/
+
+	Connect(sockfd_RU, (SA *) &servaddr_RU, sizeof(servaddr_RU));
+
+	Write(sockfd_RU, "scan", strlen("scan"));
+	while((n_RU = Read(sockfd_RU, precv, MAXLINE)) > 0)
+	{
+		sum_nbyte += n_RU;
+		precv += n_RU;
+		if (recvline_RU_scan[sum_nbyte-1] == '#')	//ctrlsrv us '#' as the end of file
+			break;
+	}
+	recvline_RU_scan[sum_nbyte-1] = 0;	/* null terminate */
+	// Fputs(recvline_RU_scan, stdout);
+
+	Close(sockfd_RU);
+	return recvline_RU_scan;
+}
