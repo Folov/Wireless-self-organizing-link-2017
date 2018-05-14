@@ -193,14 +193,12 @@ void *PC_server()
 					temp_opemwrt[j] = (char)(48 + openwrt[j]);
 				}
 				pthread_mutex_unlock(&mutex_med);
-				// strcat(temp_opemwrt, "lalalalala#");
 				strcpy(buffer_all, temp_opemwrt);
 				strcat(buffer_all, "\n");
 				strcat(buffer_all, buffer_static_info);
 				strcat(buffer_all, "#");
 	    		/* 发回PC */
 				Write(connfd, buffer_all, strlen(buffer_all));
-				// Write(connfd, "buffer_all\n#", strlen("buffer_all\n#"));
 				bzero(buffer_all, sizeof(buffer_all));
 	    	}
 	    	else
@@ -237,7 +235,7 @@ char * RU_cli(char * addr)
 	{
 		sum_nbyte += n_RU;
 		precv += n_RU;
-		if (recvline_RU_scan[sum_nbyte-1] == '#')	//ctrlsrv us '#' as the end of file
+		if (recvline_RU_scan[sum_nbyte-1] == '#')	//ctrlsrv use '#' as the end of file
 			break;
 	}
 	recvline_RU_scan[sum_nbyte-1] = 0;	/* null terminate */
