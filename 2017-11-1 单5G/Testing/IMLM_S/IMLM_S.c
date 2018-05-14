@@ -7,7 +7,7 @@ int openwrt_med[MAXROUTER] = {0};
 
 pthread_mutex_t mutex_med;
 
-void *show();
+// void *show();
 
 int main(int argc, char const *argv[])
 {
@@ -108,26 +108,25 @@ void *Renew_openwrt()
 }
 /*************************show****************************************/
 
-void *show()
-{
-	while(1)
-	{
-		sleep(5);
-		pthread_mutex_lock(&mutex_med);
-		for (int i = 0; i < MAXROUTER; ++i)
-		{
-			printf("%d|%d ", openwrt_med[i], openwrt[i]);
-		}
-		printf("\n");
-		pthread_mutex_unlock(&mutex_med);
-	}
-}
+// void *show()
+// {
+// 	while(1)
+// 	{
+// 		sleep(5);
+// 		pthread_mutex_lock(&mutex_med);
+// 		for (int i = 0; i < MAXROUTER; ++i)
+// 		{
+// 			printf("%d|%d ", openwrt_med[i], openwrt[i]);
+// 		}
+// 		printf("\n");
+// 		pthread_mutex_unlock(&mutex_med);
+// 	}
+// }
 
 /*****************************PC_server************************************************/
 
 void *PC_server()
 {
-	FILE				*fp = NULL;
 	int					listenfd, connfd;
 	struct sockaddr_in	servaddr;
 	char				recvline_PC[MAXLINE + 1];
@@ -135,21 +134,21 @@ void *PC_server()
 	char 				*p_static_info;
 	char 				*buffer_static_info;
 	char 				*buffer_all;
-	int 				file_block_length = 0;
+	char				temp_opemwrt[MAXROUTER] = {0};
 	int 				n = 0;
 	int 				flag_static = 0;
 
 	buffer_static_info = (char *)malloc(sizeof(char)*BUFFER_SIZE);
 	buffer_all = (char *)malloc(sizeof(char)*(BUFFER_SIZE + MAXROUTER));
-	memset(buffer_static_info, 0, sizeof(buffer_static_info));
-	memset(buffer_all, 0, sizeof(buffer_all));
+	memset(buffer_static_info, 0, sizeof(char)*BUFFER_SIZE);
+	memset(buffer_all, 0, sizeof(char)*(BUFFER_SIZE + MAXROUTER));
 
 	listenfd = Socket(AF_INET, SOCK_STREAM, 0);
 
 	bzero(&servaddr, sizeof(servaddr));
 	servaddr.sin_family      = AF_INET;
 	servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	servaddr.sin_port        = htons(9900);
+	servaddr.sin_port        = htons(9901);
 
 	Bind(listenfd, (SA *) &servaddr, sizeof(servaddr));
 
@@ -188,18 +187,25 @@ void *PC_server()
 		    		flag_static = 1;
 	    		}
 	    		/* 汇总信息 */
-	    		
-
+				pthread_mutex_lock(&mutex_med);
+				for (int j = 0; j < MAXROUTER; ++j)
+				{
+					temp_opemwrt[j] = (char)(48 + openwrt[j]);
+				}
+				pthread_mutex_unlock(&mutex_med);
+				// strcat(temp_opemwrt, "lalalalala#");
+				strcpy(buffer_all, temp_opemwrt);
+				strcat(buffer_all, "\n");
+				strcat(buffer_all, buffer_static_info);
+				strcat(buffer_all, "#");
 	    		/* 发回PC */
-
-
+				Write(connfd, buffer_all, strlen(buffer_all));
+				// Write(connfd, "buffer_all\n#", strlen("buffer_all\n#"));
+				bzero(buffer_all, sizeof(buffer_all));
 	    	}
 	    	else
 	    		continue;
 	    }
-	    if (n < 0)
-	    	err_sys("Socket read error!");
-		Close(listenfd);				/* close listening socket */
 		Close(connfd);			/* parent closes connected socket */
 	}
 }
