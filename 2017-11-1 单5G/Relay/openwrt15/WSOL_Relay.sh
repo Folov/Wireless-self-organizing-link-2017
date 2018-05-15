@@ -88,3 +88,10 @@ cp /tmp/wsol/bestrouter.txt /root/bakup/bestrouter.bak
 echo "#!/bin/ash" >| /root/bakup/routebak.sh
 route -n | tail -n +3 | awk '{print "route add -net "$1" gw "$2" netmask "$3" dev "$8}' >> /root/bakup/routebak.sh
 echo "WSOL ESTABLASHED!"
+
+# Information Management and Link Maintenance(IMLM)
+echo "IMLM running~"
+/root/iwscan_trans.sh
+sourcehop_num=`tail -n 1 /tmp/wsol/LPM_TOP.txt | sed 's/openwrt//'`
+/root/IMLM_RU 192.168.$sourcehop_num.$sourcehop_num $SSID &
+echo "IMLM ok~"

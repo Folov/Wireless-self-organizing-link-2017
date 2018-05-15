@@ -46,3 +46,8 @@ echo "tcpcli DONE!"
 echo "#!/bin/ash" >| /root/bakup/routebak.sh
 route -n | tail -n +3 | awk '{print "route add -net "$1" gw "$2" netmask "$3" dev "$8}' >> /root/bakup/routebak.sh
 echo "WSOL ESTABLASHED!"
+
+# Information Management and Link Maintenance(IMLM)
+echo "IMLM running~"
+/root/IMLM_S &
+echo "IMLM ok~"
