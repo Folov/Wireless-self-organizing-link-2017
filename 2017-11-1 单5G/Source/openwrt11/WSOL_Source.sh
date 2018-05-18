@@ -15,6 +15,7 @@ if [[ $? -ne 0 ]]; then
 
 	source /etc/profile
 fi
+source /etc/profile
 
 mkdir -p /root/bakup
 /root/ap11.sh
@@ -49,5 +50,9 @@ echo "WSOL ESTABLASHED!"
 
 # Information Management and Link Maintenance(IMLM)
 echo "IMLM running~"
-/root/IMLM_S &
-echo "IMLM ok~"
+/root/IMLM_S
+while [[ $? -eq 0 ]]; do
+	sleep 1
+	/root/IMLM_S
+done
+echo "IMLM ok~" # never print

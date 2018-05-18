@@ -15,6 +15,7 @@ if [[ $? -ne 0 ]]; then
 
 	source /etc/profile
 fi
+source /etc/profile
 
 mkdir -p /root/bakup
 sleep 2
@@ -91,7 +92,13 @@ echo "WSOL ESTABLASHED!"
 
 # Information Management and Link Maintenance(IMLM)
 echo "IMLM running~"
+sleep 2
 /root/iwscan_trans.sh
 sourcehop_num=`tail -n 1 /tmp/wsol/LPM_TOP.txt | sed 's/openwrt//'`
-/root/IMLM_RU 192.168.$sourcehop_num.$sourcehop_num $SSID &
-echo "IMLM ok~"
+
+/root/IMLM_RU 192.168.$sourcehop_num.$sourcehop_num $SSID
+while [[ $? -eq 0 ]]; do
+	sleep 1
+	/root/IMLM_RU 192.168.$sourcehop_num.$sourcehop_num $SSID
+done
+echo "IMLM ok~" # never print

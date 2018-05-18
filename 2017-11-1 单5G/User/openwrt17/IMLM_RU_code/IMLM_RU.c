@@ -37,13 +37,14 @@ int main(int argc, char const *argv[])
 	strcpy(arg_heartbeat.SSID, argv[2]);
 
 	pthread_t tid[NUM_THREADS];
-	if (pthread_create(&tid[0], NULL, Heartbeat, (void *)&arg_heartbeat) != 0)
-		err_sys("pthread_create Heartbeat error!");
-	if (pthread_detach(tid[0]) != 0)
-		err_sys("pthread_detach Heartbeat error!");
-
-	if (pthread_create(&tid[1], NULL, S_server, NULL) != 0)
+	
+	if (pthread_create(&tid[0], NULL, S_server, NULL) != 0)
 		err_sys("pthread_create S_server error!");
+	if (pthread_detach(tid[0]) != 0)
+		err_sys("pthread_detach S_server error!");
+
+	if (pthread_create(&tid[1], NULL, Heartbeat, (void *)&arg_heartbeat) != 0)
+		err_sys("pthread_create Heartbeat error!");
 
 	pthread_join(tid[1],NULL);
 
@@ -59,6 +60,7 @@ void *Heartbeat(void *arg)
 	struct timeval		tv_o;
 	struct Argument		*parg_in;
 	char				recvline[MAXLINE + 1];
+	int 				readerr_count = 0;
 
 	parg_in = (struct Argument *)arg;
 
@@ -68,8 +70,8 @@ void *Heartbeat(void *arg)
 	Inet_pton(AF_INET, parg_in->IP_str, &servaddr.sin_addr);
 
 	sockfd = Socket(AF_INET, SOCK_DGRAM, 0);
-	//设置SO_RCVTIMEO 接收超时4s 必要性：防止服务端端宕机后阻塞于Read调用
-	tv_o.tv_sec = 4;
+	//设置SO_RCVTIMEO 接收超时3s 必要性：防止服务端端宕机后阻塞于Read调用
+	tv_o.tv_sec = 3;
 	tv_o.tv_usec = 0;
 	setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv_o, sizeof(tv_o));
  
@@ -81,17 +83,29 @@ void *Heartbeat(void *arg)
 		Write(sockfd, parg_in->SSID, strlen(parg_in->SSID));	//对于已connect的套接字，使用write/read而不是sendto/recvfrom
 
 		if((n = read(sockfd, recvline, MAXLINE)) == -1 && errno == EAGAIN)
-			continue;		//防止"read err: Resource temporarily unavailable" 原因：errno == EAGAIN(接收超时4s)
+		{
+			readerr_count++;
+			printf("UDP read timeout! Time: %d\n", readerr_count);
+			if (readerr_count == 4)
+			{
+				printf("Ready to reboot!\n");
+				break;
+			}								//3*4 = 12s. 重复4次3s超时，代表链路某节点宕机 重启
+			continue;						//同时防止"read err: Resource temporarily unavailable" 原因：errno == EAGAIN(接收超时4s)
+		}
 		else if (n == -1)
 			err_sys("read error");
 
+		readerr_count = 0;
 		recvline[n] = 0;	/* null terminate */
 		Fputs(recvline, stdout);
 
-		sleep(3);
+		sleep(3);	// Every 3s send heartbeat message
 	}
 
-	exit(0);
+	if((system("reboot")) != 0)
+		err_sys("system reboot error!");
+	exit(1);
 }
 
 /*****************************PC_server************************************************/

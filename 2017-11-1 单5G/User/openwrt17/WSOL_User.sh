@@ -14,11 +14,12 @@ if [[ $? -ne 0 ]]; then
 
 	source /etc/profile
 fi
+source /etc/profile
 
 mkdir -p /root/bakup
 /root/ap17.sh
 
-echo 'openwrt17' >| /tmp/wsol/LPM_TO_SEND.txt
+echo $SSID >| /tmp/wsol/LPM_TO_SEND.txt
 
 # 建立向上的路由
 /root/tcpsrv_up-arm1900 &
@@ -32,7 +33,7 @@ while [ -z "$pid_tcpsrv" ]; do
 	pid_tcpsrv=`ps | grep tcpsrv_up-arm1900 | grep -v grep | awk '{print $1}'`
 done
 echo "tcpsrv_up-arm1900 & OPEN!"
-
+# 寻找AP并接入
 /root/findrouter.sh
 /root/chooserouter-arm1900 /tmp/wsol/routerlist.txt >| /tmp/wsol/bestrouter.txt
 while [[ $? -ne 0 ]]; do
@@ -75,7 +76,13 @@ echo "WSOL ESTABLASHED!"
 
 # Information Management and Link Maintenance(IMLM)
 echo "IMLM running~"
+sleep 2
 /root/iwscan_trans.sh
 sourcehop_num=`tail -n 1 /tmp/wsol/LPM_TOP.txt | sed 's/openwrt//'`
-/root/IMLM_RU 192.168.$sourcehop_num.$sourcehop_num $SSID &
-echo "IMLM ok~"
+
+/root/IMLM_RU 192.168.$sourcehop_num.$sourcehop_num $SSID
+while [[ $? -eq 0 ]]; do
+	sleep 1
+	/root/IMLM_RU 192.168.$sourcehop_num.$sourcehop_num $SSID
+done
+echo "IMLM ok~"	# never print
