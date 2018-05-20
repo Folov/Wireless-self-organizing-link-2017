@@ -61,6 +61,7 @@ void *Heartbeat(void *arg)
 	struct Argument		*parg_in;
 	char				recvline[MAXLINE + 1];
 	int 				readerr_count = 0;
+	int 				connecterr_count = 0;
 
 	parg_in = (struct Argument *)arg;
 
@@ -78,7 +79,19 @@ void *Heartbeat(void *arg)
 	strcat(parg_in->SSID, "\n");	//没有\n udpsrv不会换行
 	while(1)
 	{
-		Connect(sockfd, (SA *) &servaddr, sizeof(servaddr));	//有助于快速得知服务端是否正常
+		sleep(3);	// Every 3s send heartbeat message
+
+		if(connect(sockfd, (SA *) &servaddr, sizeof(servaddr)) < 0)		//有助于快速得知服务端是否正常
+		{
+			connecterr_count++;
+			printf("Connect error! Time: %d\n", connecterr_count);
+			if (connecterr_count == 4)
+			{
+				printf("Ready to reboot!\n");
+				break;
+			}
+			continue;
+		}
 
 		Write(sockfd, parg_in->SSID, strlen(parg_in->SSID));	//对于已connect的套接字，使用write/read而不是sendto/recvfrom
 
@@ -97,10 +110,10 @@ void *Heartbeat(void *arg)
 			err_sys("read error");
 
 		readerr_count = 0;
+		connecterr_count = 0;
 		recvline[n] = 0;	/* null terminate */
 		Fputs(recvline, stdout);
 
-		sleep(3);	// Every 3s send heartbeat message
 	}
 
 	if((system("reboot")) != 0)
