@@ -15,10 +15,10 @@ if [[ $? -ne 0 ]]; then
 
 	source /etc/profile
 fi
-source /etc/profile
 
 mkdir -p /root/bakup
 sleep 2
+kill `ps | grep hostapd | grep -v grep | awk '{print $1}'`
 /root/ap15.sh
 
 # 建立向下的路由（阻塞于tcpsrv_down-arm1900）
@@ -62,7 +62,7 @@ sleep 1
 /root/clientAP_15.sh
 sleep 2
 
-# Send LPM to subnet.
+# Send LPM to up-hop.
 nexthop_num=`grep '^ssid' /tmp/wsol/bestrouter.txt | sed -r 's/ssid="openwrt(.*)"/\1/'`
 /root/tcpcli-arm1900 192.168.$nexthop_num.$nexthop_num /tmp/wsol/LPM_TO_SEND.txt
 # Sometimes occur "Network unreachable"
@@ -73,7 +73,8 @@ while [[ $? -ne 0 ]]; do
 done
 echo "tcpcli DONE!"
 
-# After getting data, tcpsrv_up-arm1900 call link_build_up.sh
+# After getting data from up-hop, tcpsrv_up-arm1900 call link_build_up.sh by system()
+# link_build_up.sh will send LPM_TOP.txt to subnet by tcpcli-arm1900
 
 # Wait for tcpsrv_up-arm1900 end.
 ps | grep tcpsrv_up-arm1900 | grep -v grep

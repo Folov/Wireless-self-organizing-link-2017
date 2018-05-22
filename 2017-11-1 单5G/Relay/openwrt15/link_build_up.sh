@@ -15,5 +15,11 @@ done
 # Send LPM to subnet.
 down_num=`tail -n 1 /tmp/wsol/LPM_GET.txt | head -n 1 | sed 's/openwrt//'`
 /root/tcpcli-arm1900 192.168.$down_num.$down_num /tmp/wsol/LPM_TOP.txt
+# Sometimes occur "connect error: Host is unreachable"
+while [[ $? -ne 0 ]]; do
+	echo "Wait for tcpcli to subnet..."
+	sleep 1
+	/root/tcpcli-arm1900 192.168.$down_num.$down_num /tmp/wsol/LPM_TOP.txt
+done
 
 exit 0

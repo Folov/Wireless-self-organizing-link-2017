@@ -14,9 +14,9 @@ if [[ $? -ne 0 ]]; then
 
 	source /etc/profile
 fi
-source /etc/profile
 
 mkdir -p /root/bakup
+kill `ps | grep hostapd | grep -v grep | awk '{print $1}'`
 /root/ap17.sh
 
 echo $SSID >| /tmp/wsol/LPM_TO_SEND.txt

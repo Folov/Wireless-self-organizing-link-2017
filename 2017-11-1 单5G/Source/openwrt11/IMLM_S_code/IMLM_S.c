@@ -74,21 +74,32 @@ void dg_echo(int sockfd, SA *pcliaddr, socklen_t clilen)
 
 void *Renew_openwrt()
 {
+	char command[40] = "/root/link_del.sh ";
+	char errip[20];
 	while(1)
 	{
-		//4s (1)
-		sleep(4);								// 一倍去抖4s，二倍去抖7s
+		//7s (1)
+		sleep(7);								// 一倍去抖4s，二倍去抖7s
 		pthread_mutex_lock(&mutex_med);
 		memset(openwrt_med, 0, sizeof(openwrt_med));
 		pthread_mutex_unlock(&mutex_med);
 
-		//4s (2)
-		sleep(4);
+		//7s (2)
+		sleep(7);
 		pthread_mutex_lock(&mutex_med);			// initial value: 00
 		for (int i = 0; i < MAXROUTER; ++i)		// 00 -> 00
 		{										// 01 -> 00
 			if (openwrt_med[i] == 0)			// 10 -> 11
-				openwrt[i] = 0;					// 11 -> 11
+			{									// 11 -> 11
+				if (openwrt[i] == 1)			// if (0|1) -> link err
+				{
+					sprintf(errip, "192.168.%d.0", i);
+					strcat(command, errip);
+					if((system(command)) != 0)
+						err_sys("system /root/link_del.sh error!");
+				}
+				openwrt[i] = 0;
+			}
 			else
 				openwrt[i] = 1;
 		}

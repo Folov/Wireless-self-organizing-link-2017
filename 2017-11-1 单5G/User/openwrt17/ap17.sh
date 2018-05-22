@@ -94,12 +94,12 @@ iw phy phy0 interface add wlan10 type managed addr $MAC_ADDR_WLAN10
 echo "wlan10 on phy0 has been created!"
 iw phy phy0 interface add wlan20 type managed addr $MAC_ADDR_WLAN20
 echo "wlan20 on phy0 has been created!"
-iw phy phy1 interface add wlan30 type managed addr $MAC_ADDR_WLAN30
-echo "wlan30 on phy1 has been created!"
+# iw phy phy1 interface add wlan30 type managed addr $MAC_ADDR_WLAN30
+# echo "wlan30 on phy1 has been created!"
 # hostapd start(a pid file will be created)
 sleep 1
 hostapd -B -P /tmp/wsol/hostapd-wlan10.pid /root/hostapd-wlan10.conf
 echo "5GAP has been created!"
-sleep 1
-hostapd -B -P /tmp/wsol/hostapd-wlan30.pid /root/hostapd-wlan30.conf
-echo "2.4GAP has been created!"
+# sleep 1
+# hostapd -B -P /tmp/wsol/hostapd-wlan30.pid /root/hostapd-wlan30.conf
+# echo "2.4GAP has been created!"
