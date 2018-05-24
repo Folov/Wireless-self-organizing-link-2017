@@ -113,7 +113,10 @@ void *Renew_openwrt()
 					sprintf(errip, "192.168.%d.0", i);
 					strcat(command, errip);
 					status = system(command);
+
 					bzero(command, sizeof(command));
+					strcpy(command, "/root/link_del.sh ");
+					
 					if (-1 == status)
 						printf("system error!");
 					else
