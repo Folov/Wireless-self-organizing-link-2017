@@ -97,6 +97,7 @@ echo "wlan10 on phy0 has been created!"
 # iw phy phy1 interface add wlan30 type managed addr $MAC_ADDR_WLAN30
 # echo "wlan30 on phy1 has been created!"
 # hostapd start(a pid file will be created)
+iwconfig wlan10 txpower 8dBm
 sleep 1
 hostapd -B -P /tmp/wsol/hostapd-wlan10.pid /root/hostapd-wlan10.conf
 echo "5GAP has been created!"

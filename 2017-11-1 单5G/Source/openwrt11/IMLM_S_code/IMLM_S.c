@@ -33,6 +33,7 @@ void *Heartbeats()
 {
 	int					sockfd;
 	struct sockaddr_in	servaddr, cliaddr;
+	// struct timeval		tv_o;
 
 	sockfd = Socket(AF_INET, SOCK_DGRAM, 0);
 
@@ -42,6 +43,11 @@ void *Heartbeats()
 	servaddr.sin_port        = htons(9899);	// port: 9899 for Heartbeat
 
 	Bind(sockfd, (SA *) &servaddr, sizeof(servaddr));
+
+	// //设置SO_RCVTIMEO 接收超时7s 必要性：更新recvfrom
+	// tv_o.tv_sec = 7;
+	// tv_o.tv_usec = 0;
+	// setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv_o, sizeof(tv_o));
 
 	dg_echo(sockfd, (SA *) &cliaddr, sizeof(cliaddr));
 
@@ -55,10 +61,16 @@ void dg_echo(int sockfd, SA *pcliaddr, socklen_t clilen)
 	char		mesg[MAXLINE];
 	char *		p_num = mesg + 7; //point to the number of "openwrt17"(17)
 	int 		router_num = 0;
+	int 		n_sendto = 0;
+	int 		n_recvfrom = 0;
 
 	for ( ; ; ) {
 		len = clilen;
-		Recvfrom(sockfd, mesg, MAXLINE, 0, pcliaddr, &len);
+		if ((n_recvfrom = recvfrom(sockfd, mesg, MAXLINE, 0, pcliaddr, &len)) < 0)
+		{
+			fprintf(stderr, "recvfrom err!\n");
+			continue;
+		}
 		router_num = atoi(p_num);	// array to (int)number
 
 		pthread_mutex_lock(&mutex_med);
@@ -66,7 +78,11 @@ void dg_echo(int sockfd, SA *pcliaddr, socklen_t clilen)
 		pthread_mutex_unlock(&mutex_med);
 
 		bzero(mesg, MAXLINE);
-		Sendto(sockfd, "Heartbeats_Echo\n", sizeof("Heartbeats_Echo\n"), 0, pcliaddr, len);
+		if ((n_sendto = sendto(sockfd, "Heartbeats_Echo\n", sizeof("Heartbeats_Echo\n"), 0, pcliaddr, len)) < 0)
+		{
+			fprintf(stderr, "sendto err!\n");
+			continue;
+		}
 	}
 }
 
@@ -76,6 +92,7 @@ void *Renew_openwrt()
 {
 	char command[40] = "/root/link_del.sh ";
 	char errip[20];
+	pid_t status;
 	while(1)
 	{
 		//7s (1)
@@ -95,8 +112,23 @@ void *Renew_openwrt()
 				{
 					sprintf(errip, "192.168.%d.0", i);
 					strcat(command, errip);
-					if((system(command)) != 0)
-						err_sys("system /root/link_del.sh error!");
+					status = system(command);
+					bzero(command, sizeof(command));
+					if (-1 == status)
+						printf("system error!");
+					else
+					{
+						printf("exit status value = [0x%x]\n", status);
+						if (WIFEXITED(status))
+						{
+							if (0 == WEXITSTATUS(status))
+								printf("run shell script successfully.\n");
+							else
+								printf("run shell script fail, script exit code: %d\n", WEXITSTATUS(status));
+						}
+						else
+							printf("exit status = [%d]\n", WEXITSTATUS(status));
+					}
 				}
 				openwrt[i] = 0;
 			}
@@ -189,6 +221,7 @@ void *PC_server()
 				Write(connfd, buffer_all, strlen(buffer_all));
 				printf("PC transmition success!\n");
 				bzero(buffer_all, sizeof(buffer_all));
+				bzero(recvline_PC, sizeof(recvline_PC));
 	    	}
 	    	else
 	    		continue;

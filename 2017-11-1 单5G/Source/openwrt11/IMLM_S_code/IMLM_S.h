@@ -2,6 +2,8 @@
 #define CTRL_H_
 
 #include 	<sys/socket.h>
+#include 	<sys/wait.h>
+#include 	<sys/types.h>
 #include	<time.h>
 #include 	<errno.h>
 #include	<stdarg.h>
