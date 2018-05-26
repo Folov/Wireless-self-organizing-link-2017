@@ -55,13 +55,14 @@ int main(int argc, char const *argv[])
 /*****************************Heartbeat************************************************/
 void *Heartbeat(void *arg)
 {
-	int					sockfd, n;
+	int					sockfd, n, n_write;
 	struct sockaddr_in	servaddr;
 	struct timeval		tv_o;
 	struct Argument		*parg_in;
 	char				recvline[MAXLINE + 1];
 	int 				readerr_count = 0;
 	int 				connecterr_count = 0;
+	int 				status = 0;
 
 	parg_in = (struct Argument *)arg;
 
@@ -80,6 +81,7 @@ void *Heartbeat(void *arg)
 	while(1)
 	{
 		sleep(3);	// Every 3s send heartbeat message
+		bzero(recvline, sizeof(recvline));
 
 		if(connect(sockfd, (SA *) &servaddr, sizeof(servaddr)) < 0)		//有助于快速得知服务端是否正常
 		{
@@ -93,7 +95,11 @@ void *Heartbeat(void *arg)
 			continue;
 		}
 
-		Write(sockfd, parg_in->SSID, strlen(parg_in->SSID));	//对于已connect的套接字，使用write/read而不是sendto/recvfrom
+		if ((n_write = write(sockfd, parg_in->SSID, strlen(parg_in->SSID))) < 0)
+		{
+			fprintf(stderr, "Heartbeat write err!\n");
+			continue;
+		}
 
 		if((n = read(sockfd, recvline, MAXLINE)) == -1 && errno == EAGAIN)
 		{
@@ -103,12 +109,20 @@ void *Heartbeat(void *arg)
 			{
 				printf("Ready to reboot!\n");
 				break;
-			}								//3*4 = 12s. 重复4次3s超时，代表链路某节点宕机 重启
+			}								//3*4 = 12s. 重复4次3s超时，代表链路某节点宕机 break 重启
 			continue;						//同时防止"read err: Resource temporarily unavailable" 原因：errno == EAGAIN(接收超时4s)
 		}
 		else if (n == -1)
-			err_sys("read error");
-
+		{
+			readerr_count++;
+			fprintf(stderr, "Heartbeat read Echo err! NOT timeout! Time: %d\n", readerr_count);
+			if (readerr_count == 4)
+			{
+				printf("Ready to reboot!\n");
+				break;
+			}
+			continue;
+		}
 		readerr_count = 0;
 		connecterr_count = 0;
 		recvline[n] = 0;	/* null terminate */
@@ -116,8 +130,23 @@ void *Heartbeat(void *arg)
 
 	}
 
-	if((system("reboot")) != 0)
-		err_sys("system reboot error!");
+	status = system("reboot");
+	/**** never print ****/
+	if (-1 == status)
+		printf("system error!");
+	else
+	{
+		printf("exit status value = [0x%x]\n", status);
+		if (WIFEXITED(status))
+		{
+			if (0 == WEXITSTATUS(status))
+				printf("run shell script successfully.\n");
+			else
+				printf("run shell script fail, script exit code: %d\n", WEXITSTATUS(status));
+		}
+		else
+			printf("exit status = [%d]\n", WEXITSTATUS(status));
+	}
 	exit(1);
 }
 
@@ -183,6 +212,7 @@ void *S_server()
 	    		strcat(buffer_static_info, "#");	// use '#' as the end of array
 				Write(connfd, buffer_static_info, strlen(buffer_static_info));
 				bzero(buffer_static_info, sizeof(buffer_static_info));
+				bzero(recvline_S, sizeof(recvline_S));
 	    	}
 	    	else if (strcmp(recvline_S, "gps") == 0)
 	    	{

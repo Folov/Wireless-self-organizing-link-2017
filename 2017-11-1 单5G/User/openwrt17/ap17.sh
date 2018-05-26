@@ -2,20 +2,26 @@
 echo "ap17 up and initialize"
 # Use this apxx.sh, we can build an AP_5G, change lan ip to 192.168.xx.xx, close dhcp.
 
+# Trans SSID_num to SSID_num in HEX for MAC_ADDR
+SSID_num_16=`printf %x $SSID_num`
+if [ $SSID_num -le 15 ]; then
+	SSID_num_16=0$SSID_num_16
+fi
+
 # For wlan10 and wlan20 bssid
 MAC_ADDR=`cat /sys/class/net/br-lan/address`
-MAC_ADDR_LAST=`echo ${MAC_ADDR#*:}`
-MAC_ADDR_WLAN10=10:$MAC_ADDR_LAST
-MAC_ADDR_WLAN20=20:$MAC_ADDR_LAST
-MAC_ADDR_WLAN30=30:$MAC_ADDR_LAST
+MAC_ADDR_LAST=`echo ${MAC_ADDR#*:*:}`
+MAC_ADDR_WLAN10=10:$SSID_num_16:$MAC_ADDR_LAST
+MAC_ADDR_WLAN20=20:$SSID_num_16:$MAC_ADDR_LAST
+MAC_ADDR_WLAN30=30:$SSID_num_16:$MAC_ADDR_LAST
 if [ $MAC_ADDR_WLAN10 = $MAC_ADDR ]; then
-	MAC_ADDR_WLAN10=11:$MAC_ADDR_LAST
+	MAC_ADDR_WLAN10=11:$SSID_num_16:$MAC_ADDR_LAST
 fi
 if [ $MAC_ADDR_WLAN20 = $MAC_ADDR ]; then
-	MAC_ADDR_WLAN10=21:$MAC_ADDR_LAST
+	MAC_ADDR_WLAN10=21:$SSID_num_16:$MAC_ADDR_LAST
 fi
 if [ $MAC_ADDR_WLAN30 = $MAC_ADDR ]; then
-	MAC_ADDR_WLAN10=31:$MAC_ADDR_LAST
+	MAC_ADDR_WLAN10=31:$SSID_num_16:$MAC_ADDR_LAST
 fi
 
 mkdir -p /tmp/wsol

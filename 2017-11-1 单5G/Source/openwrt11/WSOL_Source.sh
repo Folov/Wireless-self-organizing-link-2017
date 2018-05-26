@@ -32,9 +32,6 @@ echo "Start ROUTE Process"
 while [ 1 ]; do
 	/root/WSOL_Route.sh
 	echo "ROUTE ESTABLASHED!"
-	# For lind_del.sh to pick up MAC
-	sleep 2
-	/root/findrouter.sh
 done
 
 

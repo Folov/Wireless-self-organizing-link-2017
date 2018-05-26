@@ -114,7 +114,13 @@ void *Heartbeat(void *arg)
 		}
 		else if (n == -1)
 		{
-			fprintf(stderr, "Heartbeat read Echo err! NOT timeout!\n");
+			readerr_count++;
+			fprintf(stderr, "Heartbeat read Echo err! NOT timeout! Time: %d\n", readerr_count);
+			if (readerr_count == 4)
+			{
+				printf("Ready to reboot!\n");
+				break;
+			}
 			continue;
 		}
 		readerr_count = 0;
