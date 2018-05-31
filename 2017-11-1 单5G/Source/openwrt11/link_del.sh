@@ -20,20 +20,21 @@ if [ $gw_num -le 15 ]; then
 fi
 gw_inMAC=`iw dev wlan10 station dump | grep "^Station 20:$gw_num_16:" | awk '{print $2}'`
 if [[ -z $gw_inMAC ]]; then
-	echo "$gw_inMAC NOT in iw dump list! Try 21:XX:XX:XX:XX:XX"
+	echo "20:$gw_num_16: NOT in iw dump list! Try 21:XX:XX:XX:XX:XX"
 	gw_inMAC=`iw dev wlan10 station dump | grep "^Station 21:$gw_num_16:" | awk '{print $2}'`
+	if [[ -z $gw_inMAC ]]; then
+		echo "21:$gw_num_16: NOT in iw dump list! No fit connecting point!"
+	else
+		iw dev wlan10 station del $gw_inMAC 			# del connecting point
+	fi
+else
+	iw dev wlan10 station del $gw_inMAC 			# del connecting point
 fi
-if [[ -z $gw_inMAC ]]; then
-	echo "$gw_inMAC NOT in iw dump list! Exit link_del.sh!"
-	exit 0
-fi
-
-iw dev wlan10 station del $gw_inMAC 			# del connecting point
 
 gw_relate_ip_num=`route -n | grep $gw_ip | wc -l`
 for i in $(seq 1 $gw_relate_ip_num); do
 	gw_relate_ip=`route -n | grep $gw_ip | awk '{print $1}' | tail -n $i | head -n 1`
-	route del -net $gw_relate_ip netmask 255.255.255.0
+	route del -net $gw_relate_ip netmask 255.255.255.0	# del route table
 done
 
 exit 0
