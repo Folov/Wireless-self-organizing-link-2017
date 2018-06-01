@@ -1,0 +1,7 @@
+# Put your custom commands here that should be executed once
+# the system init finished. By default this file does nothing.
+
+source /etc/profile
+/root/WSOL_Source.sh > /tmp/WSOL_Source.out 2>&1 &
+
+exit 0
