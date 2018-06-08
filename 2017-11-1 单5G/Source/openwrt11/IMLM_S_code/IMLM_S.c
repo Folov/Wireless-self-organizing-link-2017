@@ -3,8 +3,10 @@
 
 int openwrt[MAXROUTER] = {0};
 int openwrt_med[MAXROUTER] = {0};
+int	flag_static = 0;
 
 pthread_mutex_t mutex_med;
+pthread_mutex_t mutex_static_flag;
 
 
 int main(int argc, char const *argv[])
@@ -135,8 +137,14 @@ void *Renew_openwrt()
 				}
 				openwrt[i] = 0;
 			}
-			else
+			else	// 1X -> 11
+			{
+				pthread_mutex_lock(&mutex_static_flag);
+				if (openwrt[i] == 0)			// if(1|0) -> link connect
+					flag_static = 0;
+				pthread_mutex_unlock(&mutex_static_flag);
 				openwrt[i] = 1;
+			}
 		}
 		pthread_mutex_unlock(&mutex_med);
 	}
@@ -155,7 +163,6 @@ void *PC_server()
 	char 				*buffer_all;
 	char				temp_opemwrt[MAXROUTER] = {0};
 	int 				n = 0;
-	int 				flag_static = 0;
 
 	buffer_static_info = (char *)malloc(sizeof(char)*BUFFER_SIZE);
 	buffer_all = (char *)malloc(sizeof(char)*(BUFFER_SIZE + MAXROUTER));
@@ -192,8 +199,10 @@ void *PC_server()
 	    		printf("PC request message get!\n");
 	    		signal(SIGCHLD,SIG_DFL);
 	    		/* 取各节点信息保存 */
+				pthread_mutex_lock(&mutex_static_flag);
 	    		if (flag_static == 0)
 	    		{
+					memset(buffer_static_info, 0, sizeof(char)*BUFFER_SIZE);
 	    			for (int i = 0; i < MAXROUTER; ++i)
 		    		{
 		    			if (openwrt[i] == 1)
@@ -207,7 +216,8 @@ void *PC_server()
 		    			}
 		    		}
 		    		flag_static = 1;
-	    		}	    		
+	    		}
+				pthread_mutex_unlock(&mutex_static_flag);
 	    		/* 汇总信息 */
 				pthread_mutex_lock(&mutex_med);
 				for (int j = 0; j < MAXROUTER; ++j)
@@ -241,6 +251,8 @@ char * RU_cli(char * addr)
 	char 				*precv = recvline_RU_scan;
 	int 				n_RU = 0;
 	int 				sum_nbyte = 0;
+
+	memset(recvline_RU_scan, 0, sizeof(char)*BUFFER_SIZE);
 
 	sockfd_RU = Socket(AF_INET, SOCK_STREAM, 0);
 

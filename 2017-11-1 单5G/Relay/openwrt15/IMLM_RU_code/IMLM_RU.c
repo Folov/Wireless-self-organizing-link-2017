@@ -211,7 +211,7 @@ void *S_server()
 	    		/* 发回PC */
 	    		strcat(buffer_static_info, "#");	// use '#' as the end of array
 				Write(connfd, buffer_static_info, strlen(buffer_static_info));
-				bzero(buffer_static_info, sizeof(buffer_static_info));
+				memset(buffer_static_info, 0, sizeof(char)*BUFFER_SIZE);
 				bzero(recvline_S, sizeof(recvline_S));
 	    	}
 	    	else if (strcmp(recvline_S, "gps") == 0)
