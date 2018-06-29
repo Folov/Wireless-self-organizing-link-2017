@@ -183,42 +183,42 @@ void *PC_server()
 	//允许Socket重用，防止出现 bind error: Address in use
 	int Reuse = 1;
 	setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &Reuse, sizeof(Reuse));
-    signal(SIGCHLD,SIG_IGN);
-    //避免出现子进程结束后的僵死进程的简单方法（忽略），缺点是不能对SIGCHILD信号进行处理。
+	signal(SIGCHLD,SIG_IGN);
+	//避免出现子进程结束后的僵死进程的简单方法（忽略），缺点是不能对SIGCHILD信号进行处理。
 
-    while(1)
-    {
-	    connfd = Accept(listenfd, (SA *) NULL, NULL);	
-	    //第2,3个参数用于接收accept函数返回的对端客户协议地址。可以置空。我们不感兴趣。
-	    //accept函数返回已连接套接字(TCP三路握手成功后的)，它代表client端套接字
-	    while ((n = Read(connfd, recvline_PC, MAXLINE)) > 0)
-	    {
-	    	recvline_PC[n] = 0;	/* null terminate：数组结尾置0 */
-	    	if (strcmp(recvline_PC, "Please~") == 0)
-	    	{
-	    		printf("PC request message get!\n");
-	    		signal(SIGCHLD,SIG_DFL);
-	    		/* 取各节点信息保存 */
+	while(1)
+	{
+		connfd = Accept(listenfd, (SA *) NULL, NULL);	
+		//第2,3个参数用于接收accept函数返回的对端客户协议地址。可以置空。我们不感兴趣。
+		//accept函数返回已连接套接字(TCP三路握手成功后的)，它代表client端套接字
+		while ((n = Read(connfd, recvline_PC, MAXLINE)) > 0)
+		{
+			recvline_PC[n] = 0;	/* null terminate：数组结尾置0 */
+			if (strcmp(recvline_PC, "Please~") == 0)
+			{
+				printf("PC Please message get!\n");
+				signal(SIGCHLD,SIG_DFL);
+				/* 取各节点信息保存 */
 				pthread_mutex_lock(&mutex_static_flag);
-	    		if (flag_static == 0)
-	    		{
+				if (flag_static == 0)
+				{
 					memset(buffer_static_info, 0, sizeof(char)*BUFFER_SIZE);
-	    			for (int i = 0; i < MAXROUTER; ++i)
-		    		{
-		    			if (openwrt[i] == 1)
-		    			{
-		    				sprintf(IP_str, "192.168.%d.%d", i, i);
-		    				printf("Getting data from %s\n", IP_str);
-		    				strcat(buffer_static_info, IP_str);
-		    				strcat(buffer_static_info, "\n");
-		    				p_static_info = RU_cli(IP_str);
-		    				strcat(buffer_static_info, p_static_info);
-		    			}
-		    		}
-		    		flag_static = 1;
-	    		}
+					for (int i = 0; i < MAXROUTER; ++i)
+					{
+						if (openwrt[i] == 1)
+						{
+							sprintf(IP_str, "192.168.%d.%d", i, i);
+							printf("Getting data from %s\n", IP_str);
+							strcat(buffer_static_info, IP_str);
+							strcat(buffer_static_info, "\n");
+							p_static_info = RU_cli(IP_str);
+							strcat(buffer_static_info, p_static_info);
+						}
+					}
+					flag_static = 1;
+				}
 				pthread_mutex_unlock(&mutex_static_flag);
-	    		/* 汇总信息 */
+				/* 汇总信息 */
 				pthread_mutex_lock(&mutex_med);
 				for (int j = 0; j < MAXROUTER; ++j)
 				{
@@ -230,15 +230,53 @@ void *PC_server()
 				strcat(buffer_all, "\n");
 				strcat(buffer_all, buffer_static_info);
 				strcat(buffer_all, "#");
-	    		/* 发回PC */
+				/* 发回PC */
 				Write(connfd, buffer_all, strlen(buffer_all));
 				printf("PC transmition success!\n");
 				bzero(buffer_all, sizeof(buffer_all));
 				bzero(recvline_PC, sizeof(recvline_PC));
-	    	}
-	    	else
-	    		continue;
-	    }
+			}
+			else if (strcmp(recvline_PC, "Renew~") == 0)
+			{
+				printf("PC Renew message get!\n");
+				signal(SIGCHLD,SIG_DFL);
+				/* 取各节点信息保存 */
+				pthread_mutex_lock(&mutex_static_flag);
+				memset(buffer_static_info, 0, sizeof(char)*BUFFER_SIZE);
+				for (int i = 0; i < MAXROUTER; ++i)
+				{
+					if (openwrt[i] == 1)
+					{
+						sprintf(IP_str, "192.168.%d.%d", i, i);
+						printf("Getting data from %s\n", IP_str);
+						strcat(buffer_static_info, IP_str);
+						strcat(buffer_static_info, "\n");
+						p_static_info = RU_cli(IP_str);
+						strcat(buffer_static_info, p_static_info);
+					}
+				}
+				pthread_mutex_unlock(&mutex_static_flag);
+				/* 汇总信息 */
+				pthread_mutex_lock(&mutex_med);
+				for (int j = 0; j < MAXROUTER; ++j)
+				{
+					temp_opemwrt[j] = (char)(48 + openwrt[j]);
+				}
+				pthread_mutex_unlock(&mutex_med);
+
+				strcpy(buffer_all, temp_opemwrt);
+				strcat(buffer_all, "\n");
+				strcat(buffer_all, buffer_static_info);
+				strcat(buffer_all, "#");
+				/* 发回PC */
+				Write(connfd, buffer_all, strlen(buffer_all));
+				printf("PC transmition success!\n");
+				bzero(buffer_all, sizeof(buffer_all));
+				bzero(recvline_PC, sizeof(recvline_PC));
+			}
+			else
+				continue;
+		}
 		Close(connfd);			/* parent closes connected socket */
 	}
 }

@@ -3,7 +3,7 @@ SRCS = $(wildcard *.c)
 #变量OBJS的值就是将SRCS里面所有.c文件编译出的.o目标文件
 OBJS = $(SRCS:.c = .o)
 #变量CC代表我们要使用的编译器，CC是环境变量
-CC = arm-openwrt-linux-muslgnueabi-gcc
+CC = /WorkSpace/code/openwrt/LEDE_WRT3200/source/staging_dir/toolchain-arm_cortex-a9+vfpv3_gcc-5.5.0_musl_eabi/bin/arm-openwrt-linux-gcc
 #这里指定除了编译器默认的头文件和库文件的路径之外需要额外引用的头文件路径以及库的路径，×××表示路径
 INCLUDES = -I/./
 LIBS = -L/./

@@ -1,15 +1,14 @@
 #include "IMLM_RU.h"
-#define NUM_THREADS 2
+#define NUM_THREADS 3
 
-int openwrt[MAXROUTER] = {0};
-int openwrt_med[MAXROUTER] = {0};
-
-pthread_mutex_t mutex_med;
+char recvline_GPS[MAXGPSLINE] = {0};
+pthread_mutex_t mutex_gps;
 
 struct Argument
 {
 	char IP_str[20];
 	char SSID[MAXID];
+	char GPS_tty[20];
 };
 
 int main(int argc, char const *argv[])
@@ -17,24 +16,25 @@ int main(int argc, char const *argv[])
 	char tmp_ssid[MAXID] = {0};
 	const char * pnum = argv[2] + 7;
 
-	if (argc != 3)
-		err_quit("usage: IMLM_RU <IPaddress> <SSID>");
+	if (argc != 4)
+		err_quit("usage: IMLM_RU <IPaddress> <Self_SSID> <GPS_tty>");
 	strcpy(tmp_ssid, argv[2]);
 	tmp_ssid[7] = 0;
 	if (strcmp(tmp_ssid, "openwrt") != 0)
 	{
 		printf("SSID WRONG!\n");
-		err_quit("usage: IMLM_RU <IPaddress> <SSID>");
+		err_quit("usage: IMLM_RU <IPaddress> <Self_SSID> <GPS_tty>");
 	}
 	if ((atoi(pnum) > 255 || atoi(pnum) <= 0))
 	{
 		printf("SSID WRONG!\n");
-		err_quit("usage: IMLM_RU <IPaddress> <SSID>");
+		err_quit("usage: IMLM_RU <IPaddress> <Self_SSID> <GPS_tty>");
 	}
 
-	struct Argument arg_heartbeat;
-	strcpy(arg_heartbeat.IP_str, argv[1]);
-	strcpy(arg_heartbeat.SSID, argv[2]);
+	struct Argument arg_pthread;
+	strcpy(arg_pthread.IP_str, argv[1]);
+	strcpy(arg_pthread.SSID, argv[2]);
+	strcpy(arg_pthread.GPS_tty, argv[3]);
 
 	pthread_t tid[NUM_THREADS];
 	
@@ -43,13 +43,55 @@ int main(int argc, char const *argv[])
 	if (pthread_detach(tid[0]) != 0)
 		err_sys("pthread_detach S_server error!");
 
-	if (pthread_create(&tid[1], NULL, Heartbeat, (void *)&arg_heartbeat) != 0)
+	if (pthread_create(&tid[1], NULL, GPS_UART_R, (void *)&arg_pthread) != 0)
+		err_sys("pthread_create GPS_UART_R error!");
+	if (pthread_detach(tid[1]) != 0)
+		err_sys("pthread_detach GPS_UART_R error!");
+
+	if (pthread_create(&tid[2], NULL, Heartbeat, (void *)&arg_pthread) != 0)
 		err_sys("pthread_create Heartbeat error!");
 
-	pthread_join(tid[1],NULL);
+	pthread_join(tid[2],NULL);
 
 	return 0;
 }
+
+/*****************************GPS_UART_R***********************************************/
+
+void *GPS_UART_R(void *arg)
+{
+	struct Argument		*parg_in;
+	int fd;							//文件描述符
+	int len;
+
+	parg_in = (struct Argument *)arg;
+
+	fd = UART0_Open(parg_in->GPS_tty); //打开串口，返回文件描述符
+
+	UART0_Init(fd, 115200, 0, 8, 1, 'N');
+	printf("UART0_Init Exactly!\n");
+	while(1) //循环读取数据
+	{
+		sleep(5);
+
+		pthread_mutex_lock(&mutex_gps);
+		tcflush(fd, TCIFLUSH);
+		bzero(recvline_GPS, sizeof(recvline_GPS));
+		len = UART0_Recv(fd, recvline_GPS, 61);
+		if (len > 0)
+		{
+			recvline_GPS[len] = '\0';
+			recvline_GPS[len-1] = '\0';	//gps信息最后有两个换行符，需要去掉一个
+			printf("receive data is:\n%s", recvline_GPS);
+			printf("len = %d\n", len);
+		}
+		else
+			printf("cannot receive data\n");
+		pthread_mutex_unlock(&mutex_gps);
+	}
+	UART0_Close(fd);
+}
+
 
 
 /*****************************Heartbeat************************************************/
@@ -158,6 +200,7 @@ void *S_server()
 	int					listenfd, connfd;
 	struct sockaddr_in	servaddr;
 	char				recvline_S[MAXLINE + 1];
+	char				buffer_scan_info[BUFFSIZE*2];
 	char 				*buffer_static_info;
 	int 				n = 0;
 	int 				fsize = 0;
@@ -205,21 +248,26 @@ void *S_server()
 				fsize = ftell(fp);  
 				rewind(fp);
 
-				fread(buffer_static_info, 1, fsize, fp);	//每次读一个，共读size次
+				fread(buffer_scan_info, 1, fsize, fp);	//每次读一个，共读size次
 
 				fclose(fp);
 	    		/* 发回PC */
+				pthread_mutex_lock(&mutex_gps);
+	    		strcpy(buffer_static_info, recvline_GPS);
+	    		pthread_mutex_unlock(&mutex_gps);
+	    		strcat(buffer_static_info, buffer_scan_info);
 	    		strcat(buffer_static_info, "#");	// use '#' as the end of array
 				Write(connfd, buffer_static_info, strlen(buffer_static_info));
+				
 				memset(buffer_static_info, 0, sizeof(char)*BUFFER_SIZE);
 				bzero(recvline_S, sizeof(recvline_S));
 	    	}
-	    	else if (strcmp(recvline_S, "gps") == 0)
-	    	{
-	    		printf("Source gps request message get!\n");
-	    		signal(SIGCHLD,SIG_DFL);
+	    	// else if (strcmp(recvline_S, "gps") == 0)
+	    	// {
+	    	// 	printf("Source gps request message get!\n");
+	    	// 	signal(SIGCHLD,SIG_DFL);
 
-	    	}
+	    	// }
 	    	else
 	    		continue;
 	    }

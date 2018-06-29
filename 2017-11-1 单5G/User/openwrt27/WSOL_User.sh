@@ -1,5 +1,6 @@
 #!/bin/ash
 
+source /etc/profile
 grep Self_id /etc/profile
 if [[ $? -ne 0 ]]; then
 	echo "Add env variables."
@@ -80,9 +81,9 @@ sleep 2
 /root/iwscan_trans.sh
 sourcehop_num=`tail -n 1 /tmp/wsol/LPM_TOP.txt | sed 's/openwrt//'`
 
-/root/IMLM_RU 192.168.$sourcehop_num.$sourcehop_num $SSID
+/root/IMLM_RU 192.168.$sourcehop_num.$sourcehop_num $SSID /dev/ttyUSB0
 while [[ $? -eq 0 ]]; do
 	sleep 1
-	/root/IMLM_RU 192.168.$sourcehop_num.$sourcehop_num $SSID
+	/root/IMLM_RU 192.168.$sourcehop_num.$sourcehop_num $SSID /dev/ttyUSB0
 done
 echo "IMLM ok~"	# never print
