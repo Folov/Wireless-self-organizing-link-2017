@@ -13,7 +13,10 @@ int UART0_Open(char* port)
 	// open用于打开设备文件，fopen用于打开普通文件
 	fd = open(port, O_RDWR|O_NOCTTY|O_NDELAY|O_TRUNC);
 	if (FALSE == fd)
-		err_quit("Can't Open Serial Port\n");
+	{
+		printf("Can't Open Serial Port\n");
+		return FALSE;
+	}
 	//恢复串口为阻塞状态
 	if(fcntl(fd, F_SETFL, 0) < 0)
 		err_quit("fcntl failed!\n");

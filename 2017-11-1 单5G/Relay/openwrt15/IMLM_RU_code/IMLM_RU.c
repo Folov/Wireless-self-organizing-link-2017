@@ -8,7 +8,6 @@ struct Argument
 {
 	char IP_str[20];
 	char SSID[MAXID];
-	char GPS_tty[20];
 };
 
 int main(int argc, char const *argv[])
@@ -16,25 +15,24 @@ int main(int argc, char const *argv[])
 	char tmp_ssid[MAXID] = {0};
 	const char * pnum = argv[2] + 7;
 
-	if (argc != 4)
-		err_quit("usage: IMLM_RU <IPaddress> <Self_SSID> <GPS_tty>");
+	if (argc != 3)
+		err_quit("usage: IMLM_RU <IPaddress> <Self_SSID>");
 	strcpy(tmp_ssid, argv[2]);
 	tmp_ssid[7] = 0;
 	if (strcmp(tmp_ssid, "openwrt") != 0)
 	{
 		printf("SSID WRONG!\n");
-		err_quit("usage: IMLM_RU <IPaddress> <Self_SSID> <GPS_tty>");
+		err_quit("usage: IMLM_RU <IPaddress> <Self_SSID>");
 	}
 	if ((atoi(pnum) > 255 || atoi(pnum) <= 0))
 	{
 		printf("SSID WRONG!\n");
-		err_quit("usage: IMLM_RU <IPaddress> <Self_SSID> <GPS_tty>");
+		err_quit("usage: IMLM_RU <IPaddress> <Self_SSID>");
 	}
 
 	struct Argument arg_pthread;
 	strcpy(arg_pthread.IP_str, argv[1]);
 	strcpy(arg_pthread.SSID, argv[2]);
-	strcpy(arg_pthread.GPS_tty, argv[3]);
 
 	pthread_t tid[NUM_THREADS];
 	
@@ -43,7 +41,7 @@ int main(int argc, char const *argv[])
 	if (pthread_detach(tid[0]) != 0)
 		err_sys("pthread_detach S_server error!");
 
-	if (pthread_create(&tid[1], NULL, GPS_UART_R, (void *)&arg_pthread) != 0)
+	if (pthread_create(&tid[1], NULL, GPS_UART_R, NULL) != 0)
 		err_sys("pthread_create GPS_UART_R error!");
 	if (pthread_detach(tid[1]) != 0)
 		err_sys("pthread_detach GPS_UART_R error!");
@@ -58,15 +56,13 @@ int main(int argc, char const *argv[])
 
 /*****************************GPS_UART_R***********************************************/
 
-void *GPS_UART_R(void *arg)
+void *GPS_UART_R()
 {
-	struct Argument		*parg_in;
 	int fd;							//文件描述符
 	int len;
 
-	parg_in = (struct Argument *)arg;
-
-	fd = UART0_Open(parg_in->GPS_tty); //打开串口，返回文件描述符
+	while((fd = UART0_Open("/dev/ttyUSB0")) < 0) //打开串口，返回文件描述符
+		sleep(5);
 
 	UART0_Init(fd, 115200, 0, 8, 1, 'N');
 	printf("UART0_Init Exactly!\n");
