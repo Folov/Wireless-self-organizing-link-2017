@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>README</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child, 
+ol li > :first-child, 
+ul li ul:first-of-type, 
+ol li ol:first-of-type, 
+ul li ol:first-of-type, 
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+kbd {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(#F1F1F1, #DDDDDD);
+    background-repeat: repeat-x;
+    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+    border-image: none;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 10px;
+    padding: 1px 4px;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+img {
+  max-width: 100%
+}
+</style>
+</head>
+<body>
+<h2>使用方法</h2>
+<p>|  程序名  |    源端IP   |   参数  |</p>
+<ol>
+<li>./test.exe 192.168.12.11 Please~ (获取信息，节省资源)</li>
+<li>./test.exe 192.168.12.11 Renew~ (获取最新信息，资源消耗较大)</li>
+</ol>
+<blockquote>
+<p>Renew~指令会更新心跳信息以及各路由器节点的北斗定位数据和周围AP信息（全部更新）；而Please~指令只会更新心跳信息。</p>
+<blockquote>
+<p>建议：可每隔一段时间使用Renew刷新数据。如4次Please~后接一次Renew~</p>
+</blockquote>
+</blockquote>
+<h2>TCP协议相关信息</h2>
+<ul>
+<li>端口：9901 </li>
+<li>源端路由器IP：192.168.12.11（WAN），192.168.11.11（LAN）</li>
+</ul>
+<blockquote>
+<p>源端路由器可通过WAN口接入和LAN口接入。只是IP不同而已。</p>
+<blockquote>
+<p>建议：使用WAN口接入，该网口不参与链路控制信息传递。</p>
+</blockquote>
+</blockquote>
+<h2>数据格式</h2>
+<p>向源端路由器的9901端口发送&quot;Please~&quot;或&quot;Renew~&quot;参数后，将得到如下信息：</p>
+<pre><code>000000000000000101000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+192.168.15.15
+BDS:2018-07-03 16:29:51,39.908030000,116.554955000,73.7,00
+BSS:    60:45:cb:cb:ae:18
+freq:   5745
+signal: -56.00 dBm
+SSID:   ASUS_5G-2
+BSS:    74:1f:4a:b1:7b:60
+freq:   5745
+signal: -82.00 dBm
+SSID:   BISU
+192.168.17.17
+BDS:2018-07-03 16:29:51,39.908030000,116.554955000,73.7,00
+BSS:    60:45:cb:cb:ae:18
+freq:   5745
+signal: -46.00 dBm
+SSID:   ASUS_5G-2
+192.168.25.25
+BSS:    60:45:cb:cb:ae:18
+freq:   5745
+signal: -49.00 dBm
+SSID:   ASUS_5G-2
+...
+</code></pre>
+
+<h2>数据解释</h2>
+<ol>
+<li>第一行为255个路由器的心跳数据，也即<em>动态数据</em>，首元素为0，即第一个表示的是<strong>192.168.0.0<strong>，第16个表示的是</strong>192.168.15.15</strong>，其他数据为<em>静态数据</em>；</li>
+<li>心跳数据为1表示收到心跳，为0表示未收到心跳；</li>
+<li>第二行开始为各路由器北斗定位信息和周围AP信息，以该路由器IP地址打头，其次是该路由器获得的北斗定位信息，再往下依次为MAC地址(BSS)、中心频率(freq)、信号强度(signal)、AP名(SSID)；</li>
+<li>各路由器信息按IP最后字段的大小顺序排序，与路由器连接顺序无关。</li>
+<li>某些路由器可能定位信息无法获取，因此可能接收到的数据中没有北斗定位信息，如<strong>192.168.25.25</strong>路由器的信息所示；</li>
+<li>北斗定位信息含义依次为: BDS:日期 时间,北纬,东经,高度(m),卫星颗数</li>
+<li><strong>当某节点心跳1 -&gt; 0 后，其静态数据仍会存在，需选择性忽略显示。或可用Renew~参数命令进行刷新</strong></li>
+</ol>
+<h2>编译指令</h2>
+<p>Linux命令行：<code>gcc -Wall -std=c99 ./*.c -o test.exe</code></p>
+
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

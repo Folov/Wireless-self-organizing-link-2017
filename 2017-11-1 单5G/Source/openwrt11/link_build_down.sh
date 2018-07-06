@@ -1,6 +1,18 @@
 #!/bin/ash
 
 route del default
+# 确保LPM_GET.txt文件是已更新的
+sleep 2
+lpm_utctime=`ls /tmp/wsol/LPM_GET.txt --full-time | awk '{print $6" "$7}'`
+lpmtime=`date -d "$lpm_utctime" +%s`
+lpmtime=`expr $lpmtime + 60`
+nowtime=`date +%s`
+while [ $lpmtime -lt $nowtime ]; do
+	sleep 1
+	lpm_utctime=`ls /tmp/wsol/LPM_GET.txt --full-time | awk '{print $6" "$7}'`
+	lpmtime=`date -d "$lpm_utctime" +%s`
+done
+
 echo "Create file LPM_TO_SEND.txt"
 cat /tmp/wsol/LPM_GET.txt > /tmp/wsol/LPM_TO_SEND.txt
 # Sometimes occur "cat: can't open '/tmp/wsol/LPM_GET.txt': No such file or directory"
