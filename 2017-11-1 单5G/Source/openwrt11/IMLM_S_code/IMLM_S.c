@@ -154,20 +154,25 @@ void *Renew_openwrt()
 
 void *PC_server()
 {
+	FILE 				*fd;
+	int 				flen = 0;
 	int					listenfd, connfd;
 	struct sockaddr_in	servaddr;
 	char				recvline_PC[MAXLINE + 1];
 	char 				IP_str[20];
 	char 				*p_static_info;
 	char 				*buffer_static_info;
+	char				*buffer_link_info;
 	char 				*buffer_all;
 	char				temp_opemwrt[MAXROUTER] = {0};
 	int 				n = 0;
 
 	buffer_static_info = (char *)malloc(sizeof(char)*BUFFER_SIZE);
-	buffer_all = (char *)malloc(sizeof(char)*(BUFFER_SIZE + MAXROUTER));
+	buffer_link_info = (char *)malloc(sizeof(char)*MAXLINE);
+	buffer_all = (char *)malloc(sizeof(char)*(BUFFER_SIZE + MAXROUTER + MAXLINE));
 	memset(buffer_static_info, 0, sizeof(char)*BUFFER_SIZE);
-	memset(buffer_all, 0, sizeof(char)*(BUFFER_SIZE + MAXROUTER));
+	memset(buffer_link_info, 0, sizeof(char)*MAXLINE);
+	memset(buffer_all, 0, sizeof(char)*(BUFFER_SIZE + MAXROUTER + MAXLINE));
 
 	listenfd = Socket(AF_INET, SOCK_STREAM, 0);
 
@@ -203,7 +208,7 @@ void *PC_server()
 				if (flag_static == 0)
 				{
 					memset(buffer_static_info, 0, sizeof(char)*BUFFER_SIZE);
-					for (int i = 0; i < MAXROUTER; ++i)
+					for (int i = 0; i < MAXROUTER; ++i)					//static message
 					{
 						if (openwrt[i] == 1)
 						{
@@ -219,15 +224,31 @@ void *PC_server()
 				}
 				pthread_mutex_unlock(&mutex_static_flag);
 				/* 汇总信息 */
-				pthread_mutex_lock(&mutex_med);
+				pthread_mutex_lock(&mutex_med);							//Heartbeats message
 				for (int j = 0; j < MAXROUTER; ++j)
 				{
 					temp_opemwrt[j] = (char)(48 + openwrt[j]);
 				}
 				pthread_mutex_unlock(&mutex_med);
 
+				if ((fd = fopen("/tmp/wsol/wsol_link.txt", "r")) == NULL)
+					printf("wsol_link.txt open wrong!\n");				//link message
+				else
+				{
+					memset(buffer_link_info, 0, sizeof(char)*MAXLINE);
+					fseek(fd, 0L, SEEK_END);
+					flen = ftell(fd);
+					if (flen == 0)
+						printf("wsol_link.txt is empty!\n");
+					fseek(fd, 0L, SEEK_SET);
+					fread(buffer_link_info, flen, 1, fd);
+					strcat(buffer_link_info, "\0");
+					fclose(fd);
+				}
+
 				strcpy(buffer_all, temp_opemwrt);
 				strcat(buffer_all, "\n");
+				strcat(buffer_all, buffer_link_info);
 				strcat(buffer_all, buffer_static_info);
 				strcat(buffer_all, "#");
 				/* 发回PC */
@@ -243,7 +264,7 @@ void *PC_server()
 				/* 取各节点信息保存 */
 				pthread_mutex_lock(&mutex_static_flag);
 				memset(buffer_static_info, 0, sizeof(char)*BUFFER_SIZE);
-				for (int i = 0; i < MAXROUTER; ++i)
+				for (int i = 0; i < MAXROUTER; ++i)						//static message
 				{
 					if (openwrt[i] == 1)
 					{
@@ -257,15 +278,31 @@ void *PC_server()
 				}
 				pthread_mutex_unlock(&mutex_static_flag);
 				/* 汇总信息 */
-				pthread_mutex_lock(&mutex_med);
+				pthread_mutex_lock(&mutex_med);							//Heartbeats message
 				for (int j = 0; j < MAXROUTER; ++j)
 				{
 					temp_opemwrt[j] = (char)(48 + openwrt[j]);
 				}
 				pthread_mutex_unlock(&mutex_med);
 
+				if ((fd = fopen("/tmp/wsol/wsol_link.txt", "r")) == NULL)
+					printf("wsol_link.txt open wrong!\n");				//link message
+				else
+				{
+					memset(buffer_link_info, 0, sizeof(char)*MAXLINE);
+					fseek(fd, 0L, SEEK_END);
+					flen = ftell(fd);
+					if (flen == 0)
+						printf("wsol_link.txt is empty!\n");
+					fseek(fd, 0L, SEEK_SET);
+					fread(buffer_link_info, flen, 1, fd);
+					strcat(buffer_link_info, "\0");
+					fclose(fd);
+				}
+
 				strcpy(buffer_all, temp_opemwrt);
 				strcat(buffer_all, "\n");
+				strcat(buffer_all, buffer_link_info);
 				strcat(buffer_all, buffer_static_info);
 				strcat(buffer_all, "#");
 				/* 发回PC */

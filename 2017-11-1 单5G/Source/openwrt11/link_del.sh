@@ -13,6 +13,8 @@ if [[ -z $gw_ip ]]; then
 fi
 gw_num=`echo $gw_ip | awk -F. '{print $4}'`		# gw_num=15
 gw_ssid=openwrt$gw_num							# gw_ssid=openwrt15
+# del ineffective link in wsol_link.txt
+sed -i "/.*$gw_ssid.*/d" /tmp/wsol/wsol_link.txt
 
 gw_num_16=`printf %x $gw_num`
 if [ $gw_num -le 15 ]; then

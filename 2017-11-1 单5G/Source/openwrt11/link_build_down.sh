@@ -23,6 +23,8 @@ while [[ $? -ne 0 ]]; do
 done
 echo "Create LPM_TO_SEND.txt Done!"
 echo $SSID >> /tmp/wsol/LPM_TO_SEND.txt
+echo "Create file wsol_link.txt"
+cat /tmp/wsol/LPM_TO_SEND.txt | tr "\n" "-" | sed 's/.$/\n/' >> /tmp/wsol/wsol_link.txt
 
 echo "Establish static route."
 lpm_number=`wc -l /tmp/wsol/LPM_GET.txt | sed 's/ .*$//'`

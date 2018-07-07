@@ -18,7 +18,6 @@
 
 
 #define	LISTENQ		1024	/* 2nd argument to listen() */
-#define	MAXLINE		4096	/* max text line length */
 #define	BUFFSIZE	8192	/* buffer size for reads and writes */
 #define	SA	struct sockaddr
 #define MAXID 100
