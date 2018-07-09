@@ -24,7 +24,7 @@ int UART0_Open(char* port)
 		printf("fcntl=%d\n", fcntl(fd, F_SETFL,0));
 	//测试是否为终端设备
 	if(0 == isatty(STDIN_FILENO))
-		err_quit("standard input is not a terminal device\n");
+		printf("standard input is not a terminal device\n");
 	else
 		printf("isatty success!\n");
 	printf("fd->open=%d\n", fd);
