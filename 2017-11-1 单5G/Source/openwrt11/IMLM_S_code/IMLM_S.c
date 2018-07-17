@@ -166,6 +166,8 @@ void *PC_server()
 	char 				*buffer_all;
 	char				temp_opemwrt[MAXROUTER] = {0};
 	int 				n = 0;
+	int 				link_num = 0;
+	char				buffer_link_num[5];
 
 	buffer_static_info = (char *)malloc(sizeof(char)*BUFFER_SIZE);
 	buffer_link_info = (char *)malloc(sizeof(char)*MAXLINE);
@@ -236,6 +238,8 @@ void *PC_server()
 				else
 				{
 					memset(buffer_link_info, 0, sizeof(char)*MAXLINE);
+					bzero(buffer_link_num, sizeof(buffer_link_num));
+					link_num = 0;
 					fseek(fd, 0L, SEEK_END);
 					flen = ftell(fd);
 					if (flen == 0)
@@ -248,6 +252,13 @@ void *PC_server()
 
 				strcpy(buffer_all, temp_opemwrt);
 				strcat(buffer_all, "\n");
+				for (int i = 0; i < flen; ++i)
+				{
+					if (buffer_link_info[i] == '\n')
+						link_num++;
+				}
+				sprintf(buffer_link_num, "%d\n", link_num);
+				strcat(buffer_all, buffer_link_num);
 				strcat(buffer_all, buffer_link_info);
 				strcat(buffer_all, buffer_static_info);
 				strcat(buffer_all, "#");
@@ -290,6 +301,8 @@ void *PC_server()
 				else
 				{
 					memset(buffer_link_info, 0, sizeof(char)*MAXLINE);
+					bzero(buffer_link_num, sizeof(buffer_link_num));
+					link_num = 0;
 					fseek(fd, 0L, SEEK_END);
 					flen = ftell(fd);
 					if (flen == 0)
@@ -302,6 +315,13 @@ void *PC_server()
 
 				strcpy(buffer_all, temp_opemwrt);
 				strcat(buffer_all, "\n");
+				for (int i = 0; i < flen; ++i)
+				{
+					if (buffer_link_info[i] == '\n')
+						link_num++;
+				}
+				sprintf(buffer_link_num, "%d\n", link_num);
+				strcat(buffer_all, buffer_link_num);
 				strcat(buffer_all, buffer_link_info);
 				strcat(buffer_all, buffer_static_info);
 				strcat(buffer_all, "#");
