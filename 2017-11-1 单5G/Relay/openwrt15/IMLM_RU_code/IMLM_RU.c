@@ -168,7 +168,7 @@ void *Heartbeat(void *arg)
 
 	}
 
-	status = system("reboot");
+	status = system("/root/RESTART.sh");
 	/**** never print ****/
 	if (-1 == status)
 		printf("system error!");
