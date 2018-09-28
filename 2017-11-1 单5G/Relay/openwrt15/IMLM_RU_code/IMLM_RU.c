@@ -60,9 +60,13 @@ void *GPS_UART_R()
 {
 	int fd;							//文件描述符
 	int len;
+	int no_data_times = 0;
 
 	while((fd = UART0_Open("/dev/ttyUSB0")) < 0) //打开串口，返回文件描述符
+	{
 		sleep(5);
+		sprintf(recvline_GPS, "BDS:000000000000000000000000000000000000000000000000000000\n");
+	}
 
 	UART0_Init(fd, 115200, 0, 8, 1, 'N');
 	printf("UART0_Init Exactly!\n");
@@ -80,10 +84,21 @@ void *GPS_UART_R()
 			recvline_GPS[len-1] = '\0';	//gps信息最后有两个换行符，需要去掉一个
 			printf("receive data is:\n%s", recvline_GPS);
 			printf("len = %d\n", len);
+			no_data_times = 0;
 		}
 		else
+		{
 			printf("cannot receive data\n");
+			sprintf(recvline_GPS, "BDS:000000000000000000000000000000000000000000000000000000\n");
+			no_data_times++;
+		}
 		pthread_mutex_unlock(&mutex_gps);
+
+		if (no_data_times > 10)
+		{
+			while((fd = UART0_Open("/dev/ttyUSB0")) < 0) //打开串口，返回文件描述符
+				sleep(5);
+		}
 	}
 	UART0_Close(fd);
 }
