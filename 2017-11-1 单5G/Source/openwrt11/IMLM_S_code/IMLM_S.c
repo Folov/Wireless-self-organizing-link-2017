@@ -220,6 +220,7 @@ void *PC_server()
 							strcat(buffer_static_info, "\n");
 							p_static_info = RU_cli(IP_str);
 							strcat(buffer_static_info, p_static_info);
+							strcat(buffer_static_info, "------\n");
 						}
 					}
 					flag_static = 1;
@@ -285,6 +286,7 @@ void *PC_server()
 						strcat(buffer_static_info, "\n");
 						p_static_info = RU_cli(IP_str);
 						strcat(buffer_static_info, p_static_info);
+						strcat(buffer_static_info, "------\n");
 					}
 				}
 				pthread_mutex_unlock(&mutex_static_flag);
