@@ -214,13 +214,13 @@ void *PC_server()
 					{
 						if (openwrt[i] == 1)
 						{
+							strcat(buffer_static_info, "------\n");
 							sprintf(IP_str, "192.168.%d.%d", i, i);
 							printf("Getting data from %s\n", IP_str);
 							strcat(buffer_static_info, IP_str);
 							strcat(buffer_static_info, "\n");
 							p_static_info = RU_cli(IP_str);
 							strcat(buffer_static_info, p_static_info);
-							strcat(buffer_static_info, "------\n");
 						}
 					}
 					flag_static = 1;
@@ -280,13 +280,13 @@ void *PC_server()
 				{
 					if (openwrt[i] == 1)
 					{
+						strcat(buffer_static_info, "------\n");
 						sprintf(IP_str, "192.168.%d.%d", i, i);
 						printf("Getting data from %s\n", IP_str);
 						strcat(buffer_static_info, IP_str);
 						strcat(buffer_static_info, "\n");
 						p_static_info = RU_cli(IP_str);
 						strcat(buffer_static_info, p_static_info);
-						strcat(buffer_static_info, "------\n");
 					}
 				}
 				pthread_mutex_unlock(&mutex_static_flag);
