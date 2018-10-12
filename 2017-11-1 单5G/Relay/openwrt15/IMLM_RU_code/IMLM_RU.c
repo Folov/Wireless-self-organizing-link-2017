@@ -96,6 +96,9 @@ void *GPS_UART_R()
 
 		if (no_data_times > 10)
 		{
+			no_data_times = 5;
+			UART0_Close(fd);
+			sleep(2);
 			while((fd = UART0_Open("/dev/ttyUSB0")) < 0) //打开串口，返回文件描述符
 				sleep(5);
 		}
