@@ -5,14 +5,14 @@ source /etc/profile
 grep Self_id /etc/profile
 if [[ $? -ne 0 ]]; then
 	echo "Add env variables."
-	echo "export Self_id=15" >> /etc/profile
-	echo "export SSID=openwrt15" >> /etc/profile
-	echo "export SSID_num=15" >> /etc/profile
+	echo "export Self_id=35" >> /etc/profile
+	echo "export SSID=openwrt35" >> /etc/profile
+	echo "export SSID_num=35" >> /etc/profile
 	echo "export DEVICE=Linksys_AC1900" >> /etc/profile
 	echo "export DEVICE_5G1=radio0" >> /etc/profile
 	echo "export DEVICE_5G2=radio2" >> /etc/profile
-	echo "export WAN_IP=192.168.12.15" >> /etc/profile
-	echo "export LAN_IP=192.168.15.15" >> /etc/profile
+	echo "export WAN_IP=192.168.12.35" >> /etc/profile
+	echo "export LAN_IP=192.168.35.35" >> /etc/profile
 
 	source /etc/profile
 fi
@@ -20,7 +20,7 @@ fi
 mkdir -p /root/bakup
 sleep 2
 kill `ps | grep hostapd | grep -v grep | awk '{print $1}'`
-/root/ap15.sh
+/root/ap35.sh
 /root/led_config.sh -s sata -t 20 20
 /root/led_config.sh -s usb1 -d off
 
@@ -65,7 +65,7 @@ done
 echo "bestrouter.txt has been written!"
 sleep 1
 
-/root/clientAP_15.sh
+/root/clientAP_35.sh
 sleep 2
 /root/led_config.sh -s sata -t 200 300
 

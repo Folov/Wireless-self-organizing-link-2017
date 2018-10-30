@@ -113,4 +113,5 @@ sourcehop_num=`tail -n 1 /tmp/wsol/LPM_TOP.txt | sed 's/openwrt//'`
 while [[ $? -eq 0 ]]; do
 	sleep 1
 	/root/IMLM_RU 192.168.$sourcehop_num.$sourcehop_num $SSID
+done
 echo "IMLM ok~" # never print
