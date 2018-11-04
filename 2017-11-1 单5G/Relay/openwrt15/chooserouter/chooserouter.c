@@ -75,7 +75,7 @@ int read_Routers(char filename[],struct router routers[], int max)
 		// perror("fopen");
 		exit(3);	//can't open file "routerlist.txt".
 	}
-	while(fscanf(fd, "%s %f %s", routers->BSS, &routers->signal, routers->SSID)!=EOF)
+	while(fscanf(fd, "%s %f %[^\n]", routers->BSS, &routers->signal, routers->SSID)!=EOF)
 	{
 		if (++i == max)	//Read at most "max" routers into struct.
 			break;
