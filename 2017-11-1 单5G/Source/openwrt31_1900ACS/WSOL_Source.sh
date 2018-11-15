@@ -5,27 +5,29 @@ sleep 8
 grep Self_id /etc/profile
 if [[ $? -ne 0 ]]; then
 	echo "Add env variables."
-	echo "export Self_id=21" >> /etc/profile
-	echo "export SSID=openwrt21" >> /etc/profile
-	echo "export SSID_num=21" >> /etc/profile
+	echo "export Self_id=31" >> /etc/profile
+	echo "export SSID=openwrt31" >> /etc/profile
+	echo "export SSID_num=31" >> /etc/profile
 	echo "export DEVICE=Linksys_AC1900" >> /etc/profile
 	echo "export DEVICE_5G1=radio0" >> /etc/profile
 	echo "export DEVICE_5G2=radio2" >> /etc/profile
-	echo "export WAN_IP=192.168.12.21" >> /etc/profile
-	echo "export LAN_IP=192.168.21.21" >> /etc/profile
+	echo "export WAN_IP=192.168.12.31" >> /etc/profile
+	echo "export LAN_IP=192.168.31.31" >> /etc/profile
 
 	source /etc/profile
 fi
 
 mkdir -p /root/bakup
 kill `ps | grep hostapd | grep -v grep | awk '{print $1}'`
-/root/ap21.sh
+/root/ap31.sh
 echo "AP ESTABLASHED!"
 
 # Information Management and Link Maintenance(IMLM)
 echo "IMLM running~"
 /root/IMLM_S &
 echo "IMLM ok~" # never printo
+echo "Open iperf -s"
+iperf -s &
 
 # Set route from connecting link
 echo "Start ROUTE Process"

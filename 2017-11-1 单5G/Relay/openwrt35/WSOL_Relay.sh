@@ -108,6 +108,8 @@ sleep 2
 sourcehop_num=`tail -n 1 /tmp/wsol/LPM_TOP.txt | sed 's/openwrt//'`
 /root/led_config.sh -s sata -d on
 /root/led_config.sh -s usb1 -d on
+echo "Open iperf -s"
+iperf -s &
 
 /root/IMLM_RU 192.168.$sourcehop_num.$sourcehop_num $SSID
 while [[ $? -eq 0 ]]; do
