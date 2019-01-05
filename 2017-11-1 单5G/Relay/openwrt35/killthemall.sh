@@ -9,3 +9,4 @@ kill `pgrep chooserouter-arm1900`
 kill `pgrep findrouter.sh`
 kill `pgrep ap15.sh`
 kill `pgrep clientAP`
+kill `pgrep iperf`
