@@ -131,7 +131,7 @@ int choose_Router(struct router routers[], int records_number)
 			{
 				if (strcmp(routers[i].SSID, lpm_gets[j].SSID) == 0)
 				{
-					lpm_flag = 1;
+					lpm_flag = 1;	// Avoid connect to previous node.(For Relay)
 					break;
 				}
 			}
